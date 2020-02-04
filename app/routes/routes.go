@@ -13,6 +13,7 @@ func Load() http.Handler {
 
 func routes() *mux.Router {
 	r := mux.NewRouter()
+	r.HandleFunc("/health", controllers.HealthCheckHandler)
 	r.HandleFunc("/", controllers.RootHandler)
 	return r
 }
