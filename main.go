@@ -14,5 +14,6 @@ func main() {
 		port = ":8080"
 	}
 
+	fmt.Printf("Listening on port %v...", port[1:])
 	http.ListenAndServe(port, routes.Load())
 }
