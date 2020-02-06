@@ -15,10 +15,14 @@ install: db-create db-migrate
 
 db-create:
 	echo "$(CREATEDB)" | psql -U postgres
-
+	go run db/migrations/main.go init
 
 db-migrate:
-	#run migration
+	go run db/migrations/main.go up
+
+db-migrate-down:
+	go run db/migrations/main.go down
+
 
 db-drop:
 	echo "$(DROPDB)" | psql -U postgres

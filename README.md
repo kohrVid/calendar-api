@@ -5,6 +5,7 @@ Creating an API for an interview calendar
 <!-- vim-markdown-toc GFM -->
 
 * [Prerequisites](#prerequisites)
+* [Install](#install)
 * [Run the app](#run-the-app)
 
 <!-- vim-markdown-toc -->
@@ -15,6 +16,11 @@ Creating an API for an interview calendar
 * [gocov](https://github.com/axw/gocov#installation) (required for the `make test`
   command)
 
+## Install
+
+To install the app run:
+
+    go get -u github.com/kohrVid/calendar-api
 
 ## Run the app
 
@@ -28,6 +34,14 @@ To create a new database, run:
 To delete the database, run:
 
     make db-drop
+
+To run migrations:
+
+    make db-migrate
+
+To reverse a recent migration:
+
+    make db-migrate-down
 
 To run the server, run:
 
