@@ -6,7 +6,7 @@ import (
 	"os"
 
 	"github.com/go-pg/migrations"
-	"github.com/go-pg/pg"
+	"github.com/kohrVid/calendar-api/db"
 )
 
 const usageText = `This program runs command on the db. Supported commands are:
@@ -25,10 +25,8 @@ func main() {
 	flag.Usage = usage
 	flag.Parse()
 
-	db := pg.Connect(&pg.Options{
-		User:     "calendar_api",
-		Database: "calendar_api",
-	})
+	db := db.DBConnect()
+	defer db.Close()
 
 	oldVersion, newVersion, err := migrations.Run(db, flag.Args()...)
 	if err != nil {
