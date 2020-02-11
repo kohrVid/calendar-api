@@ -5,16 +5,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/gorilla/mux"
 	"github.com/stretchr/testify/assert"
 )
-
-func MockRouter() *mux.Router {
-	r := mux.NewRouter()
-	r.HandleFunc("/health", HealthCheckHandler).Methods("GET")
-	r.HandleFunc("/", RootHandler).Methods("GET")
-	return r
-}
 
 func TestRootHandler(t *testing.T) {
 	req, err := http.NewRequest("GET", "/", nil)
