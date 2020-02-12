@@ -13,6 +13,9 @@ db-migrate-down:
 db-seed:
 	go run db/operations/main.go dbSeed
 
+db-clean:
+	go run db/operations/main.go dbClean
+
 db-drop:
 	go run db/operations/main.go dbDrop
 
