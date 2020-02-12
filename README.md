@@ -50,3 +50,7 @@ To run the server, run:
 To run the test suite:
 
     make test
+
+Run the test suite with inotify:
+
+    make test-hot-reload

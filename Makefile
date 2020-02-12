@@ -23,9 +23,10 @@ serve:
 	go run main.go
 
 test:
-	gocov test -count=1 ./... | gocov report
+	ENV=test make db-clean install db-seed -i
+	ENV=test gocov test -count=1 ./... | gocov report
 
 test-hot-reload:
-	#gocov test -count=1 ./... | gocov report
+	./watch_test.sh
 
-.PHONY: install db-create db-migrate db-drop serve test test-hot-reload
+.PHONY: install db-create db-migrate db-seed db-clean db-drop serve test test-hot-reload
