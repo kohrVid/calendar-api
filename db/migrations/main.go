@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/go-pg/migrations"
+	"github.com/kohrVid/calendar-api/config"
 	"github.com/kohrVid/calendar-api/db"
 )
 
@@ -25,7 +26,8 @@ func main() {
 	flag.Usage = usage
 	flag.Parse()
 
-	db := db.DBConnect()
+	conf := config.LoadConfig()
+	db := db.DBConnect(conf)
 	defer db.Close()
 
 	oldVersion, newVersion, err := migrations.Run(db, flag.Args()...)

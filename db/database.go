@@ -7,10 +7,10 @@ import (
 	"github.com/go-pg/pg"
 )
 
-func DBConnect() *pg.DB {
+func DBConnect(config map[string]interface{}) *pg.DB {
 	db := pg.Connect(&pg.Options{
-		User:      "calendar_api",
-		Database:  "calendar_api",
+		User:      config["database_user"].(string),
+		Database:  config["database_name"].(string),
 		TLSConfig: sslMode(),
 	})
 
@@ -22,7 +22,7 @@ func sslMode() *tls.Config {
 	case "verify-ca", "verify-full":
 		return &tls.Config{}
 	case "allow", "prefer", "require":
-		return &tls.Config{InsecureSkipVerify: true} //nolint
+		return &tls.Config{InsecureSkipVerify: true}
 	default:
 		return nil
 	}
