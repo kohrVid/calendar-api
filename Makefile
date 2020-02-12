@@ -1,9 +1,3 @@
-define DROPDB
-DROP ROLE $(DATABASE_USER);\
-DROP DATABASE $(DATABASE_NAME);\
-
-endef
-
 install: db-create db-migrate
 
 db-create:
@@ -18,7 +12,7 @@ db-migrate-down:
 
 
 db-drop:
-	echo "$(DROPDB)" | psql -U postgres
+	go run db/operations/main.go dbDrop
 
 serve:
 	go run main.go
