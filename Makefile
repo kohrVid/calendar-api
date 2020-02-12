@@ -10,6 +10,8 @@ db-migrate:
 db-migrate-down:
 	go run db/migrations/main.go down
 
+db-seed:
+	go run db/operations/main.go dbSeed
 
 db-drop:
 	go run db/operations/main.go dbDrop
