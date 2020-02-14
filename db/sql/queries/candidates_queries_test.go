@@ -33,5 +33,23 @@ func TestListCandidates(t *testing.T) {
 
 	expected := []models.Candidate{candidate1, candidate2}
 
-	assert.Equal(t, expected, res, "200 response expected")
+	assert.Equal(t, expected, res, "List of candidates expected")
+}
+
+func TestFindCandidate(t *testing.T) {
+	conf := config.LoadConfig()
+	user := config.ToMapList(conf["users"])[0]
+
+	db := db.DBConnect(conf)
+	defer db.Close()
+
+	res := FindCandidate("1")
+	expected := models.Candidate{
+		Id:        1,
+		FirstName: user["first_name"].(string),
+		LastName:  user["last_name"].(string),
+		Email:     user["email"].(string),
+	}
+
+	assert.Equal(t, expected, res, "first candidate expected")
 }

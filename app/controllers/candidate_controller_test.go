@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestCandidatesHandler(t *testing.T) {
+func TestCandidatesIndexHandler(t *testing.T) {
 	req, err := http.NewRequest("GET", "/candidates", nil)
 	if err != nil {
 		t.Errorf(
@@ -51,5 +51,44 @@ func TestCandidatesHandler(t *testing.T) {
 		expectedBody,
 		resp.Body.String(),
 		"List of candidates expected",
+	)
+}
+
+func TestCandidatesShowHandler(t *testing.T) {
+	req, err := http.NewRequest("GET", "/candidates/1", nil)
+	if err != nil {
+		t.Errorf(
+			"Test failed.\nGot:\n\t%v",
+			err.Error(),
+		)
+	}
+
+	resp := httptest.NewRecorder()
+	MockRouter().ServeHTTP(resp, req)
+
+	conf := config.LoadConfig()
+	user := config.ToMapList(conf["users"])[0]
+
+	expectedBody := fmt.Sprintf(
+		`{"id":1,"first_name":"%v","last_name":"%v","email":"%v"}
+`,
+		user["first_name"].(string),
+		user["last_name"].(string),
+		user["email"].(string),
+	)
+
+	assert.Equal(t, 200, resp.Code, "200 response expected")
+	assert.Equal(
+		t,
+		"application/json; charset=UTF-8",
+		resp.Header().Get("Content-Type"),
+		"JSON response expected",
+	)
+
+	assert.Equal(
+		t,
+		expectedBody,
+		resp.Body.String(),
+		"JSON of candidate expected",
 	)
 }

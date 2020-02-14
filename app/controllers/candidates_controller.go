@@ -3,6 +3,7 @@ package controllers
 import (
 	"encoding/json"
 	"net/http"
+	"strings"
 
 	log "github.com/sirupsen/logrus"
 
@@ -10,11 +11,22 @@ import (
 	"github.com/kohrVid/calendar-api/db/sql/queries"
 )
 
-func CandidatesHandler(w http.ResponseWriter, r *http.Request) {
+func CandidatesIndexHandler(w http.ResponseWriter, r *http.Request) {
 	allCandidates := candidatesListPresenter()
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
 	if err := json.NewEncoder(w).Encode(allCandidates); err != nil {
+		log.Fatal(err)
+	}
+}
+
+func CandidatesShowHandler(w http.ResponseWriter, r *http.Request) {
+	p := strings.Split(r.URL.Path, "/")
+	id := p[len(p)-1]
+	candidate := queries.FindCandidate(id)
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	w.WriteHeader(http.StatusOK)
+	if err := json.NewEncoder(w).Encode(candidate.ToSerializer()); err != nil {
 		log.Fatal(err)
 	}
 }

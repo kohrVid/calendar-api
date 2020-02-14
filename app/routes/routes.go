@@ -13,8 +13,9 @@ func Load() http.Handler {
 
 func routes() *mux.Router {
 	r := mux.NewRouter()
-	r.HandleFunc("/candidates", controllers.CandidatesHandler)
-	r.HandleFunc("/health", controllers.HealthCheckHandler)
-	r.HandleFunc("/", controllers.RootHandler)
+	r.HandleFunc("/candidates", controllers.CandidatesIndexHandler).Methods("GET")
+	r.HandleFunc("/candidates/{id}", controllers.CandidatesShowHandler).Methods("GET")
+	r.HandleFunc("/health", controllers.HealthCheckHandler).Methods("GET")
+	r.HandleFunc("/", controllers.RootHandler).Methods("GET")
 	return r
 }
