@@ -31,35 +31,27 @@ var dbSeedCmd = &cobra.Command{
 	Long:  `This command can be used to seed a database created for the calendar API based on the environment that it is run in`,
 	Run: func(cmd *cobra.Command, args []string) {
 		conf := config.LoadConfig()
-		u1, ok := conf["user1"]
-		if !ok {
+		users := config.ToMapList(conf["users"])
+		if len(users) < 1 {
 			log.Fatal("No user to seed")
 		}
 
-		u2, ok := conf["user2"]
-		if !ok {
-			log.Fatal("No user to seed")
-		}
+		var seedDB string
 
-		user1 := u1.(map[string]interface{})
-		user2 := u2.(map[string]interface{})
+		for _, user := range users {
+			s := fmt.Sprintf(`
+			  INSERT INTO candidates (first_name, last_name, email)
+			    VALUES('%v', '%v', '%v');
+			`,
+				user["first_name"],
+				user["last_name"],
+				user["email"],
+			)
+			seedDB += s
+		}
 
 		db := db.DBConnect(conf)
 		defer db.Close()
-
-		seedDB := fmt.Sprintf(`
-		  INSERT INTO candidates (first_name, last_name, email)
-		    VALUES('%v', '%v', '%v');
-		  INSERT INTO candidates (first_name, last_name, email)
-		    VALUES('%v', '%v', '%v');
-		`,
-			user1["first_name"],
-			user1["last_name"],
-			user1["email"],
-			user2["first_name"],
-			user2["last_name"],
-			user2["email"],
-		)
 
 		_, err := db.Exec(seedDB)
 		if err != nil {

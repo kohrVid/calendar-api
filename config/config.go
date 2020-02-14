@@ -20,6 +20,28 @@ func LoadConfig() map[string]interface{} {
 	}
 }
 
+func ToMapList(n interface{}) []map[string]interface{} {
+	mapList := []map[string]interface{}{}
+
+	n2, ok := n.([]interface{})
+	if !ok {
+		return mapList
+	} else if len(n2) < 1 {
+		return mapList
+	}
+
+	for _, i := range n2 {
+		m := make(map[string]interface{})
+		for k, v := range i.(map[interface{}]interface{}) {
+			m[strings.ToLower(k.(string))] = v
+		}
+
+		mapList = append(mapList, m)
+	}
+
+	return mapList
+}
+
 func getConf(env string) map[string]interface{} {
 	viper.SetConfigName("env")
 	viper.SetConfigType("yaml")
