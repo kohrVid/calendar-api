@@ -68,8 +68,9 @@ func TestCandidatesIndexHandler(t *testing.T) {
 	)
 }
 
-func TestCandidatesShowHandler(t *testing.T) {
+func TestShowCandidatesHandler(t *testing.T) {
 	req, err := http.NewRequest("GET", "/candidates/1", nil)
+
 	if err != nil {
 		t.Errorf(
 			"Test failed.\nGot:\n\t%v",
@@ -105,5 +106,58 @@ func TestCandidatesShowHandler(t *testing.T) {
 		expectedBody,
 		resp.Body.String(),
 		"JSON of candidate expected",
+	)
+}
+
+func TestNewCandidatesHandler(t *testing.T) {
+	user := models.Candidate{
+		FirstName: "Barnie",
+		LastName:  "McAlister",
+		Email:     "barnie.mcalister@example.com",
+	}
+
+	data := []byte(
+		fmt.Sprintf(
+			`{"first_name": "%v", "last_name": "%v", "email": "%v"}`,
+			user.FirstName,
+			user.LastName,
+			user.Email,
+		),
+	)
+
+	req, err := http.NewRequest("POST", "/candidates", bytes.NewBuffer(data))
+
+	if err != nil {
+		t.Errorf(
+			"Test failed.\nGot:\n\t%v",
+			err.Error(),
+		)
+	}
+
+	resp := httptest.NewRecorder()
+	MockRouter().ServeHTTP(resp, req)
+
+	expectedBody := fmt.Sprintf(
+		`{"id":3,"first_name":"%v","last_name":"%v","email":"%v"}
+`,
+		user.FirstName,
+		user.LastName,
+		user.Email,
+	)
+
+	assert.Equal(t, 201, resp.Code, "201 response expected")
+
+	assert.Equal(
+		t,
+		"application/json; charset=UTF-8",
+		resp.Header().Get("Content-Type"),
+		"JSON response expected",
+	)
+
+	assert.Equal(
+		t,
+		expectedBody,
+		resp.Body.String(),
+		"New candidate expected",
 	)
 }
