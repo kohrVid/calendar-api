@@ -1,13 +1,23 @@
 package queries
 
 import (
+	"os"
 	"testing"
 
 	"github.com/kohrVid/calendar-api/app/models"
 	"github.com/kohrVid/calendar-api/config"
 	"github.com/kohrVid/calendar-api/db"
+	"github.com/kohrVid/calendar-api/db/operations/dbHelpers"
 	"github.com/stretchr/testify/assert"
 )
+
+func TestMain(m *testing.M) {
+	conf := config.LoadConfig()
+	dbHelpers.Clean(conf)
+	dbHelpers.Seed(conf)
+	ret := m.Run()
+	os.Exit(ret)
+}
 
 func TestListCandidates(t *testing.T) {
 	conf := config.LoadConfig()
@@ -17,6 +27,7 @@ func TestListCandidates(t *testing.T) {
 	defer db.Close()
 
 	res := ListCandidates()
+
 	candidate1 := models.Candidate{
 		Id:        1,
 		FirstName: users[0]["first_name"].(string),

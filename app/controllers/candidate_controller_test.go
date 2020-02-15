@@ -4,14 +4,26 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"testing"
 
+	"github.com/kohrVid/calendar-api/app/serializers"
 	"github.com/kohrVid/calendar-api/config"
+	"github.com/kohrVid/calendar-api/db/operations/dbHelpers"
 	"github.com/stretchr/testify/assert"
 )
 
+func TestMain(m *testing.M) {
+	conf := config.LoadConfig()
+	dbHelpers.Clean(conf)
+	dbHelpers.Seed(conf)
+	ret := m.Run()
+	os.Exit(ret)
+}
+
 func TestCandidatesIndexHandler(t *testing.T) {
 	req, err := http.NewRequest("GET", "/candidates", nil)
+
 	if err != nil {
 		t.Errorf(
 			"Test failed.\nGot:\n\t%v",
@@ -39,6 +51,7 @@ func TestCandidatesIndexHandler(t *testing.T) {
 	)
 
 	assert.Equal(t, 200, resp.Code, "200 response expected")
+
 	assert.Equal(
 		t,
 		"application/json; charset=UTF-8",
@@ -78,6 +91,7 @@ func TestCandidatesShowHandler(t *testing.T) {
 	)
 
 	assert.Equal(t, 200, resp.Code, "200 response expected")
+
 	assert.Equal(
 		t,
 		"application/json; charset=UTF-8",

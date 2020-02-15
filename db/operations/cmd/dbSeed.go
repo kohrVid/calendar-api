@@ -19,8 +19,7 @@ import (
 	"fmt"
 
 	"github.com/kohrVid/calendar-api/config"
-	"github.com/kohrVid/calendar-api/db"
-	log "github.com/sirupsen/logrus"
+	"github.com/kohrVid/calendar-api/db/operations/dbHelpers"
 	"github.com/spf13/cobra"
 )
 
@@ -31,32 +30,7 @@ var dbSeedCmd = &cobra.Command{
 	Long:  `This command can be used to seed a database created for the calendar API based on the environment that it is run in`,
 	Run: func(cmd *cobra.Command, args []string) {
 		conf := config.LoadConfig()
-		users := config.ToMapList(conf["users"])
-		if len(users) < 1 {
-			log.Fatal("No user to seed")
-		}
-
-		var seedDB string
-
-		for _, user := range users {
-			s := fmt.Sprintf(`
-			  INSERT INTO candidates (first_name, last_name, email)
-			    VALUES('%v', '%v', '%v');
-			`,
-				user["first_name"],
-				user["last_name"],
-				user["email"],
-			)
-			seedDB += s
-		}
-
-		db := db.DBConnect(conf)
-		defer db.Close()
-
-		_, err := db.Exec(seedDB)
-		if err != nil {
-			log.Fatal("err")
-		}
+		dbHelpers.Seed(conf)
 
 		fmt.Printf(
 			"Seeded %v database\n",

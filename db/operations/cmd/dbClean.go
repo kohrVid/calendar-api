@@ -19,8 +19,7 @@ import (
 	"fmt"
 
 	"github.com/kohrVid/calendar-api/config"
-	"github.com/kohrVid/calendar-api/db"
-	log "github.com/sirupsen/logrus"
+	"github.com/kohrVid/calendar-api/db/operations/dbHelpers"
 	"github.com/spf13/cobra"
 )
 
@@ -31,36 +30,8 @@ var dbCleanCmd = &cobra.Command{
 	Long:  `This command can be used to delete all rows in the database created for the calendar API based on the environment that it is run in`,
 	Run: func(cmd *cobra.Command, args []string) {
 		conf := config.LoadConfig()
-		databaseUser := conf["database_user"].(string)
 		databaseName := conf["database_name"].(string)
-
-		truncateTables := fmt.Sprintf(`
-CREATE OR REPLACE FUNCTION truncate_tables(username IN VARCHAR) RETURNS void AS $$
-DECLARE
-    statements CURSOR FOR
-        SELECT tablename FROM pg_tables
-        WHERE tableowner = username AND schemaname = 'public';
-BEGIN
-    FOR stmt IN statements LOOP
-        EXECUTE 'TRUNCATE TABLE ' || quote_ident(stmt.tablename) || ' RESTART IDENTITY CASCADE;';
-    END LOOP;
-END;
-$$ LANGUAGE plpgsql;
-		`)
-
-		cleanDB := fmt.Sprintf(
-			"%v SELECT truncate_tables('%v');",
-			truncateTables,
-			databaseUser,
-		)
-
-		db := db.DBConnect(conf)
-		defer db.Close()
-
-		_, err := db.Exec(cleanDB)
-		if err != nil {
-			log.Fatal(err)
-		}
+		dbHelpers.Clean(conf)
 
 		fmt.Printf("%v database cleaned\n", databaseName)
 	},
