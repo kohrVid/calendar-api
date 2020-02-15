@@ -6,7 +6,6 @@ import (
 
 	"github.com/kohrVid/calendar-api/app/models"
 	"github.com/kohrVid/calendar-api/config"
-	"github.com/kohrVid/calendar-api/db"
 	"github.com/kohrVid/calendar-api/db/operations/dbHelpers"
 	"github.com/stretchr/testify/assert"
 )
@@ -22,9 +21,6 @@ func TestMain(m *testing.M) {
 func TestListCandidates(t *testing.T) {
 	conf := config.LoadConfig()
 	users := config.ToMapList(conf["users"])
-
-	db := db.DBConnect(conf)
-	defer db.Close()
 
 	res := ListCandidates()
 
@@ -50,9 +46,6 @@ func TestListCandidates(t *testing.T) {
 func TestFindCandidate(t *testing.T) {
 	conf := config.LoadConfig()
 	user := config.ToMapList(conf["users"])[0]
-
-	db := db.DBConnect(conf)
-	defer db.Close()
 
 	res := FindCandidate("1")
 	expected := models.Candidate{

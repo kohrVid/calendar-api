@@ -1,13 +1,14 @@
 package controllers
 
 import (
+	"bytes"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"os"
 	"testing"
 
-	"github.com/kohrVid/calendar-api/app/serializers"
+	"github.com/kohrVid/calendar-api/app/models"
 	"github.com/kohrVid/calendar-api/config"
 	"github.com/kohrVid/calendar-api/db/operations/dbHelpers"
 	"github.com/stretchr/testify/assert"
