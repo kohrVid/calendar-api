@@ -24,7 +24,8 @@ serve:
 
 test:
 	ENV=test make db-clean install db-seed -i
-	ENV=test gocov test -count=1 ./... | gocov report
+	#ENV=test gocov test -count=1 ./... | gocov report
+	ENV=test go test -run -count=1 ./...
 
 test-hot-reload:
 	./watch_test.sh
