@@ -54,3 +54,7 @@ To run the test suite:
 Run the test suite with inotify:
 
     make test-hot-reload
+
+All of these commands should work in the test environment (`ENV=test`). For commands
+such as `make db-seed`, it may be necessary to update the config/env.yaml file
+before running in the development environment.
