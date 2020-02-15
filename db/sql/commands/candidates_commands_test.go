@@ -40,7 +40,14 @@ func TestCreateCandidate(t *testing.T) {
 }
 
 func TestUpdateCandidate(t *testing.T) {
-	candidate := queries.FindCandidate("1")
+	candidate, err := queries.FindCandidate("1")
+
+	if err != nil {
+		t.Errorf(
+			"Test failed.\nGot:\n\t%v",
+			err.Error(),
+		)
+	}
 
 	params := models.Candidate{
 		FirstName: "Alexandra",

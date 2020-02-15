@@ -23,7 +23,7 @@ func ListCandidates() []models.Candidate {
 	return candidates
 }
 
-func FindCandidate(id string) models.Candidate {
+func FindCandidate(id string) (models.Candidate, error) {
 	conf := config.LoadConfig()
 	db := db.DBConnect(conf)
 	defer db.Close()
@@ -38,8 +38,8 @@ func FindCandidate(id string) models.Candidate {
 	err = db.Select(candidate)
 
 	if err != nil {
-		fmt.Errorf("Error: %v", err)
+		return *candidate, err
 	}
 
-	return *candidate
+	return *candidate, nil
 }

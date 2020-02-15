@@ -25,11 +25,20 @@ func CandidatesIndexHandler(w http.ResponseWriter, r *http.Request) {
 func ShowCandidatesHandler(w http.ResponseWriter, r *http.Request) {
 	p := strings.Split(r.URL.Path, "/")
 	id := p[len(p)-1]
-	candidate := queries.FindCandidate(id)
+	candidate, err := queries.FindCandidate(id)
+
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	w.WriteHeader(http.StatusOK)
-	if err := json.NewEncoder(w).Encode(candidate); err != nil {
-		log.Fatal(err)
+
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		if err := json.NewEncoder(w).Encode(&models.Empty{}); err != nil {
+			log.Fatal(err)
+		}
+	} else {
+		w.WriteHeader(http.StatusOK)
+		if err := json.NewEncoder(w).Encode(candidate); err != nil {
+			log.Fatal(err)
+		}
 	}
 }
 
@@ -64,7 +73,11 @@ func EditCandidatesHandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Errorf("Error: %v", err)
 	}
 
-	candidate := queries.FindCandidate(id)
+	candidate, err := queries.FindCandidate(id)
+	if err != nil {
+		fmt.Errorf("Error: %v", err)
+	}
+
 	params := new(models.Candidate)
 
 	err = json.Unmarshal(c, params)

@@ -47,7 +47,7 @@ func TestFindCandidate(t *testing.T) {
 	conf := config.LoadConfig()
 	user := config.ToMapList(conf["users"])[0]
 
-	res := FindCandidate("1")
+	res, err := FindCandidate("1")
 	expected := models.Candidate{
 		Id:        1,
 		FirstName: user["first_name"].(string),
@@ -56,4 +56,20 @@ func TestFindCandidate(t *testing.T) {
 	}
 
 	assert.Equal(t, expected, res, "first candidate expected")
+	assert.Equal(t, nil, err, "No error expected")
+}
+
+func TestFindCandidateThatDoesNotExist(t *testing.T) {
+	res, err := FindCandidate("10000")
+
+	assert.Equal(
+		t,
+		"pg: no rows in result set",
+		err.Error(),
+		"Error expected",
+	)
+
+	assert.Equal(t, "", res.FirstName, "No candidate details expected")
+	assert.Equal(t, "", res.LastName, "No candidate details expected")
+	assert.Equal(t, "", res.Email, "No candidate details expected")
 }

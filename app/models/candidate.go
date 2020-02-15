@@ -6,3 +6,5 @@ type Candidate struct {
 	LastName  string `json:"last_name"`
 	Email     string `json:"email"`
 }
+
+type Empty struct{}
