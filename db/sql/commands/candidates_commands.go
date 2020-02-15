@@ -46,3 +46,16 @@ func UpdateCandidate(candidate *models.Candidate, params models.Candidate) model
 	cc := *candidate
 	return cc
 }
+
+func DeleteCandidate(candidate *models.Candidate) error {
+	conf := config.LoadConfig()
+	db := db.DBConnect(conf)
+	defer db.Close()
+
+	err := db.Delete(candidate)
+	if err != nil {
+		fmt.Errorf("Error: %v", err)
+	}
+
+	return err
+}

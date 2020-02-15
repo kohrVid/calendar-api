@@ -64,3 +64,37 @@ func TestUpdateCandidate(t *testing.T) {
 
 	assert.Equal(t, expected, res, "Updated candidate expected")
 }
+
+func TestDeleteCandidate(t *testing.T) {
+	id := "1"
+	candidate, err := queries.FindCandidate(id)
+
+	if err != nil {
+		t.Errorf(
+			"Test failed.\nGot:\n\t%v",
+			err.Error(),
+		)
+	}
+
+	err = DeleteCandidate(&candidate)
+
+	if err != nil {
+		t.Errorf(
+			"Test failed.\nGot:\n\t%v",
+			err.Error(),
+		)
+	}
+
+	res, err := queries.FindCandidate(id)
+
+	assert.Equal(
+		t,
+		"pg: no rows in result set",
+		err.Error(),
+		"Error expected",
+	)
+
+	assert.Equal(t, "", res.FirstName, "No candidate details expected")
+	assert.Equal(t, "", res.LastName, "No candidate details expected")
+	assert.Equal(t, "", res.Email, "No candidate details expected")
+}

@@ -247,3 +247,59 @@ func TestEditCandidatesHandler(t *testing.T) {
 		"Updated candidate expected",
 	)
 }
+
+func TestDeleteCandidatesHandler(t *testing.T) {
+	req, err := http.NewRequest("DELETE", "/candidates/1", nil)
+
+	if err != nil {
+		t.Errorf(
+			"Test failed.\nGot:\n\t%v",
+			err.Error(),
+		)
+	}
+
+	resp := httptest.NewRecorder()
+	MockRouter().ServeHTTP(resp, req)
+
+	expectedBody := fmt.Sprintf("Candidate #%v deleted", 1)
+
+	assert.Equal(t, 200, resp.Code, "200 response expected")
+
+	assert.Equal(
+		t,
+		expectedBody,
+		resp.Body.String(),
+		"Deletion message expected",
+	)
+}
+
+func TestDeleteCandidatesHandlerWhenCandidateDoesNotExist(t *testing.T) {
+	req, err := http.NewRequest("DELETE", "/candidates/1000", nil)
+
+	if err != nil {
+		t.Errorf(
+			"Test failed.\nGot:\n\t%v",
+			err.Error(),
+		)
+	}
+
+	resp := httptest.NewRecorder()
+	MockRouter().ServeHTTP(resp, req)
+	expectedBody := "{}"
+
+	assert.Equal(t, 404, resp.Code, "404 response expected")
+
+	assert.Equal(
+		t,
+		"application/json; charset=UTF-8",
+		resp.Header().Get("Content-Type"),
+		"JSON response expected",
+	)
+
+	assert.Equal(
+		t,
+		expectedBody,
+		resp.Body.String(),
+		"Empty hash expected",
+	)
+}

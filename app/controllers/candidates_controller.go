@@ -95,3 +95,26 @@ func EditCandidatesHandler(w http.ResponseWriter, r *http.Request) {
 		log.Fatal(err)
 	}
 }
+
+func DeleteCandidatesHandler(w http.ResponseWriter, r *http.Request) {
+	p := strings.Split(r.URL.Path, "/")
+	id := p[len(p)-1]
+	candidate, err := queries.FindCandidate(id)
+
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+		if err := json.NewEncoder(w).Encode(&models.Empty{}); err != nil {
+			log.Fatal(err)
+		}
+	} else {
+		err = commands.DeleteCandidate(&candidate)
+
+		if err != nil {
+			fmt.Errorf("Error: %v", err)
+		}
+
+		w.WriteHeader(http.StatusOK)
+		fmt.Fprintf(w, fmt.Sprintf("Candidate #%v deleted", id))
+	}
+}
