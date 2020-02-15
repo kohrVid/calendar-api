@@ -7,6 +7,7 @@ import (
 	"github.com/kohrVid/calendar-api/app/models"
 	"github.com/kohrVid/calendar-api/config"
 	"github.com/kohrVid/calendar-api/db/operations/dbHelpers"
+	"github.com/kohrVid/calendar-api/db/sql/queries"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -36,4 +37,23 @@ func TestCreateCandidate(t *testing.T) {
 	}
 
 	assert.Equal(t, expected, res, "New candidate expected")
+}
+
+func TestUpdateCandidate(t *testing.T) {
+	candidate := queries.FindCandidate("1")
+
+	params := models.Candidate{
+		FirstName: "Alexandra",
+	}
+
+	res := UpdateCandidate(&candidate, params)
+
+	expected := models.Candidate{
+		Id:        candidate.Id,
+		FirstName: params.FirstName,
+		LastName:  candidate.LastName,
+		Email:     candidate.Email,
+	}
+
+	assert.Equal(t, expected, res, "Updated candidate expected")
 }

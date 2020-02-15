@@ -54,3 +54,31 @@ func NewCandidatesHandler(w http.ResponseWriter, r *http.Request) {
 		log.Fatal(err)
 	}
 }
+
+func EditCandidatesHandler(w http.ResponseWriter, r *http.Request) {
+	p := strings.Split(r.URL.Path, "/")
+	id := p[len(p)-1]
+
+	c, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		fmt.Errorf("Error: %v", err)
+	}
+
+	candidate := queries.FindCandidate(id)
+	params := new(models.Candidate)
+
+	err = json.Unmarshal(c, params)
+	if err != nil {
+		fmt.Errorf("Error: %v", err)
+	}
+
+	pa := *params
+
+	commands.UpdateCandidate(&candidate, pa)
+
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	w.WriteHeader(http.StatusOK)
+	if err := json.NewEncoder(w).Encode(candidate); err != nil {
+		log.Fatal(err)
+	}
+}

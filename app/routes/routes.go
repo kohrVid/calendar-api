@@ -22,6 +22,11 @@ func routes() *mux.Router {
 func candidatesResources(r *mux.Router) *mux.Router {
 	r.HandleFunc(
 		"/candidates/{id}",
+		controllers.EditCandidatesHandler,
+	).Methods("PATCH")
+
+	r.HandleFunc(
+		"/candidates/{id}",
 		controllers.ShowCandidatesHandler,
 	).Methods("GET")
 

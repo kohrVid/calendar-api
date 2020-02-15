@@ -161,3 +161,58 @@ func TestNewCandidatesHandler(t *testing.T) {
 		"New candidate expected",
 	)
 }
+
+func TestEditCandidatesHandler(t *testing.T) {
+	conf := config.LoadConfig()
+	originalUser := config.ToMapList(conf["users"])[0]
+
+	user := models.Candidate{
+		Id:        1,
+		FirstName: "Alexandra",
+	}
+
+	data := []byte(
+		fmt.Sprintf(
+			`{"first_name": "%v", "last_name": "%v", "email": "%v"}`,
+			user.FirstName,
+			originalUser["last_name"],
+			originalUser["email"],
+		),
+	)
+
+	req, err := http.NewRequest("PATCH", "/candidates/1", bytes.NewBuffer(data))
+
+	if err != nil {
+		t.Errorf(
+			"Test failed.\nGot:\n\t%v",
+			err.Error(),
+		)
+	}
+
+	resp := httptest.NewRecorder()
+	MockRouter().ServeHTTP(resp, req)
+
+	expectedBody := fmt.Sprintf(
+		`{"id":1,"first_name":"%v","last_name":"%v","email":"%v"}
+`,
+		user.FirstName,
+		originalUser["last_name"],
+		originalUser["email"],
+	)
+
+	assert.Equal(t, 200, resp.Code, "200 response expected")
+
+	assert.Equal(
+		t,
+		"application/json; charset=UTF-8",
+		resp.Header().Get("Content-Type"),
+		"JSON response expected",
+	)
+
+	assert.Equal(
+		t,
+		expectedBody,
+		resp.Body.String(),
+		"Updated candidate expected",
+	)
+}
