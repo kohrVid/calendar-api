@@ -121,7 +121,7 @@ func TestShowCandidatesHandlerWhenCandidateDoesNotExist(t *testing.T) {
 
 	resp := httptest.NewRecorder()
 	MockRouter().ServeHTTP(resp, req)
-	expectedBody := "{}"
+	expectedBody := "{}\n"
 
 	assert.Equal(t, 404, resp.Code, "404 response expected")
 
@@ -190,6 +190,48 @@ func TestNewCandidatesHandler(t *testing.T) {
 		expectedBody,
 		resp.Body.String(),
 		"New candidate expected",
+	)
+}
+
+func TestNewCandidatesHandlerWhereAlreadyExists(t *testing.T) {
+	conf := config.LoadConfig()
+	user := config.ToMapList(conf["users"])[0]
+
+	data := []byte(
+		fmt.Sprintf(
+			`{"first_name": "%v", "last_name": "%v", "email": "%v"}`,
+			user["first_name"].(string),
+			user["last_name"].(string),
+			user["email"].(string),
+		),
+	)
+
+	req, err := http.NewRequest("POST", "/candidates", bytes.NewBuffer(data))
+
+	if err != nil {
+		t.Errorf(
+			"Test failed.\nGot:\n\t%v",
+			err.Error(),
+		)
+	}
+
+	resp := httptest.NewRecorder()
+	MockRouter().ServeHTTP(resp, req)
+
+	assert.Equal(t, 304, resp.Code, "304 response expected")
+
+	assert.Equal(
+		t,
+		"application/json; charset=UTF-8",
+		resp.Header().Get("Content-Type"),
+		"JSON response expected",
+	)
+
+	assert.Equal(
+		t,
+		"Candidate already exists",
+		resp.Body.String(),
+		"Duplicate message expected",
 	)
 }
 
@@ -285,7 +327,7 @@ func TestDeleteCandidatesHandlerWhenCandidateDoesNotExist(t *testing.T) {
 
 	resp := httptest.NewRecorder()
 	MockRouter().ServeHTTP(resp, req)
-	expectedBody := "{}"
+	expectedBody := "{}\n"
 
 	assert.Equal(t, 404, resp.Code, "404 response expected")
 

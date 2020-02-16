@@ -10,6 +10,7 @@ import (
 	log "github.com/sirupsen/logrus"
 
 	"github.com/kohrVid/calendar-api/app/models"
+	"github.com/kohrVid/calendar-api/db/operations/dbHelpers"
 	"github.com/kohrVid/calendar-api/db/sql/commands"
 	"github.com/kohrVid/calendar-api/db/sql/queries"
 )
@@ -55,13 +56,16 @@ func NewCandidatesHandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Errorf("Error: %v", err)
 	}
 
-	commands.CreateCandidate(candidate)
+	_, err = commands.CreateCandidate(candidate)
+	if err != nil {
+		w.WriteHeader(http.StatusNotModified)
+		fmt.Fprintf(w, dbHelpers.PgErrorHandler(err, "candidates"))
+		return
+	}
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusCreated)
-	if err := json.NewEncoder(w).Encode(candidate); err != nil {
-		log.Fatal(err)
-	}
+	json.NewEncoder(w).Encode(candidate)
 }
 
 func EditCandidatesHandler(w http.ResponseWriter, r *http.Request) {

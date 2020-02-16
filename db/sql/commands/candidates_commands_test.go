@@ -1,6 +1,7 @@
 package commands
 
 import (
+	"fmt"
 	"os"
 	"testing"
 
@@ -16,7 +17,6 @@ func TestMain(m *testing.M) {
 	dbHelpers.Clean(conf)
 	dbHelpers.Seed(conf)
 	ret := m.Run()
-	dbHelpers.Clean(conf)
 	os.Exit(ret)
 }
 
@@ -27,7 +27,7 @@ func TestCreateCandidate(t *testing.T) {
 		Email:     "barnie.mcalister@example.com",
 	}
 
-	res := CreateCandidate(&candidate)
+	res, err := CreateCandidate(&candidate)
 
 	expected := models.Candidate{
 		Id:        3,
@@ -37,6 +37,32 @@ func TestCreateCandidate(t *testing.T) {
 	}
 
 	assert.Equal(t, expected, res, "New candidate expected")
+	assert.Equal(t, nil, err, "No error expected")
+}
+
+func TestCreateCandidateAlreadyExists(t *testing.T) {
+	conf := config.LoadConfig()
+	user := config.ToMapList(conf["users"])[0]
+
+	candidate := models.Candidate{
+		FirstName: user["first_name"].(string),
+		LastName:  user["last_name"].(string),
+		Email:     user["email"].(string),
+	}
+
+	res, err := CreateCandidate(&candidate)
+	fmt.Println(err)
+
+	assert.Equal(
+		t,
+		"ERROR #23505 duplicate key value violates unique constraint \"candidates_unique_idx\"",
+		err.Error(),
+		"Error expected",
+	)
+
+	assert.Equal(t, "", res.FirstName, "No candidate details expected")
+	assert.Equal(t, "", res.LastName, "No candidate details expected")
+	assert.Equal(t, "", res.Email, "No candidate details expected")
 }
 
 func TestUpdateCandidate(t *testing.T) {

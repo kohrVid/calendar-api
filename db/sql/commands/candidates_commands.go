@@ -9,19 +9,20 @@ import (
 	"github.com/kohrVid/calendar-api/db"
 )
 
-func CreateCandidate(candidate *models.Candidate) models.Candidate {
+func CreateCandidate(candidate *models.Candidate) (models.Candidate, error) {
 	conf := config.LoadConfig()
 	db := db.DBConnect(conf)
-
 	err := db.Insert(candidate)
 
 	if err != nil {
-		fmt.Errorf("Error: %v", err)
+		c := models.Candidate{}
+
+		return c, err
 	}
 
 	c := *candidate
 
-	return c
+	return c, nil
 }
 
 func UpdateCandidate(candidate *models.Candidate, params models.Candidate) models.Candidate {
