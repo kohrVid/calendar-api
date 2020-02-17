@@ -18,7 +18,9 @@ import (
 func CandidatesIndexHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
-	if err := json.NewEncoder(w).Encode(queries.ListCandidates()); err != nil {
+	body := queries.ListCandidates()
+
+	if err := json.NewEncoder(w).Encode(body); err != nil {
 		log.Fatal(err)
 	}
 }
@@ -59,13 +61,14 @@ func NewCandidatesHandler(w http.ResponseWriter, r *http.Request) {
 	_, err = commands.CreateCandidate(candidate)
 	if err != nil {
 		w.WriteHeader(http.StatusNotModified)
-		fmt.Fprintf(w, dbHelpers.PgErrorHandler(err, "candidates"))
-		return
-	}
+		body := dbHelpers.PgErrorHandler(err, "candidates")
+		fmt.Fprintf(w, body)
+	} else {
 
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(candidate)
+		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+		w.WriteHeader(http.StatusCreated)
+		json.NewEncoder(w).Encode(candidate)
+	}
 }
 
 func EditCandidatesHandler(w http.ResponseWriter, r *http.Request) {

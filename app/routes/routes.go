@@ -37,13 +37,13 @@ func candidatesResources(r *mux.Router) *mux.Router {
 
 	r.HandleFunc(
 		"/candidates",
-		controllers.CandidatesIndexHandler,
-	).Methods("GET")
+		controllers.NewCandidatesHandler,
+	).Methods("POST")
 
 	r.HandleFunc(
 		"/candidates",
-		controllers.NewCandidatesHandler,
-	).Methods("POST")
+		controllers.CandidatesIndexHandler,
+	).Methods("GET")
 
 	return r
 }

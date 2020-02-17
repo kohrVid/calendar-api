@@ -13,7 +13,7 @@ func ListCandidates() []models.Candidate {
 	conf := config.LoadConfig()
 	db := db.DBConnect(conf)
 
-	var candidates []models.Candidate
+	candidates := make([]models.Candidate, 0)
 	err := db.Model(&candidates).Select()
 
 	if err != nil {

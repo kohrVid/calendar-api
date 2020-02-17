@@ -43,6 +43,16 @@ func TestListCandidates(t *testing.T) {
 	assert.Equal(t, expected, res, "List of candidates expected")
 }
 
+func TestListCandidatesEmptyDB(t *testing.T) {
+	conf := config.LoadConfig()
+	dbHelpers.Clean(conf)
+	res := ListCandidates()
+	expected := []models.Candidate{}
+
+	assert.Equal(t, expected, res, "Empty list expected")
+	dbHelpers.Seed(conf)
+}
+
 func TestFindCandidate(t *testing.T) {
 	conf := config.LoadConfig()
 	user := config.ToMapList(conf["users"])[0]
