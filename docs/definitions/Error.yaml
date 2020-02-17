@@ -1,0 +1,14 @@
+title: Error
+description: The object returned in the event of an error
+type: object
+required:
+  - first_name
+  - last_name
+  - email
+properties:
+  first_name:
+    type: string
+  last_name:
+    type: string
+  email:
+    type: string

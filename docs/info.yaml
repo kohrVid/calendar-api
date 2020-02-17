@@ -1,0 +1,11 @@
+version: '1.0.0'
+title: 'Calendar API'
+description: 'API to keep track of appointments in an interview calendar'
+termsOfService: 'http://swagger.io/terms/'
+contact:
+  name: 'Jessica Ete'
+  email: 'kohrVid@zoho.com'
+  url: 'https://www.kohrvid.com'
+license:
+  name: 'Apache 2.0'
+  url: 'https://www.apache.org/licenses/LICENSE-2.0.html'

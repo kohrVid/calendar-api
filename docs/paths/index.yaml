@@ -1,0 +1,8 @@
+/:
+  $ref: ./root.yaml
+/health:
+  $ref: ./health.yaml
+/candidates:
+  $ref: ./candidates.yaml
+/candidates/:id:
+  $ref: ./candidates_id.yaml

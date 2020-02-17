@@ -1,0 +1,74 @@
+get:
+  description: returns a candidate based on the ID supplied
+  operationId: "GET /candidates/:id"
+  parameters:
+    - name: id
+      in: path
+      description: ID of candidate to find
+      required: true
+      type: integer
+      format: int64
+  responses:
+    200:
+      description: candidate response
+      schema:
+        $ref: "#/definitions/Candidate"
+    404:
+      description: candidate not found
+      examples:
+        application/json: {}
+    default:
+      description: unexpected error
+      schema:
+        $ref: "#/definitions/Error"
+patch:
+  description: updates a candidate based on the ID and parameters supplied
+  operationId: "PATCH /candidates/:id"
+  parameters:
+    - name: id
+      in: path
+      description: ID of candidate to edit
+      required: true
+      type: integer
+      format: int64
+    - name: candidates
+      in: body
+      description: Candidate parameters to update
+      schema:
+        $ref: "#/definitions/EditCandidate"
+  responses:
+    200:
+      description: candidate response
+      schema:
+        $ref: "#/definitions/Candidate"
+    404:
+      description: candidate not found
+      examples:
+        application/json: {}
+    default:
+      description: unexpected error
+      schema:
+        $ref: "#/definitions/Error"
+delete:
+  description: deletes a single candidate based on the ID supplied
+  operationId: DELETE /candidates/:id
+  parameters:
+    - name: id
+      in: path
+      description: ID of candidate to delete
+      required: true
+      type: integer
+      format: int64
+  responses:
+    200:
+      description: candidate deleted
+      examples:
+        text/html: "Candidate #1 deleted"
+    404:
+      description: candidate not found
+      examples:
+        application/json: {}
+    default:
+      description: "unexpected error"
+      schema:
+        $ref: "#/definitions/Error"

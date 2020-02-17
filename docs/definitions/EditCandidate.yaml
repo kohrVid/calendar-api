@@ -1,0 +1,10 @@
+title: Edit Candidate
+description: A edit a candidate's attributes for an interview
+type: object
+properties:
+  first_name:
+    type: string
+  last_name:
+    type: string
+  email:
+    type: string

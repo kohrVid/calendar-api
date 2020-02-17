@@ -5,6 +5,7 @@ Creating an API for an interview calendar
 <!-- vim-markdown-toc GFM -->
 
 * [Prerequisites](#prerequisites)
+* [Install](#install)
 * [Run the app](#run-the-app)
 
 <!-- vim-markdown-toc -->
@@ -14,7 +15,16 @@ Creating an API for an interview calendar
 * [go](https://golang.org)
 * [gocov](https://github.com/axw/gocov#installation) (required for the `make test`
   command)
+* [go-swagger](https://github.com/go-swagger/go-swagger/)
+* [swagger-merger](https://github.com/WindomZ/swagger-merger)
+  * The library above is an NPM package so this would require
+    [Node/NPM](https://nodejs.org/en/) as well
 
+## Install
+
+To install the app run:
+
+    go get -u github.com/kohrVid/calendar-api
 
 ## Run the app
 
@@ -29,10 +39,30 @@ To delete the database, run:
 
     make db-drop
 
+To run migrations:
+
+    make db-migrate
+
+To reverse a recent migration:
+
+    make db-migrate-down
+
 To run the server, run:
 
     make serve
 
+To view the swagger documentation, run:
+
+    make swagger
+
 To run the test suite:
 
     make test
+
+Run the test suite with inotify:
+
+    make test-hot-reload
+
+All of these commands should work in the test environment (`ENV=test`). For commands
+such as `make db-seed`, it may be necessary to update the config/env.yaml file
+before running in the development environment.

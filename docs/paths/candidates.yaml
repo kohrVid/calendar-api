@@ -1,0 +1,37 @@
+get:
+  description: Get a list of all candidates in the database
+  operationId: "GET /candidates"
+  responses:
+    200:
+      description: Candidates response
+      schema:
+        type: array
+        items:
+          $ref: "#/definitions/Candidate"
+    default:
+      description: unexpected error
+      schema:
+        $ref: "#/definitions/Error"
+post:
+  description: Creates a new candidate. Duplicates are not allowed
+  operationId: "POST /candidates"
+  parameters:
+    - name: candidates
+      in: body
+      description: Candidate to add to the database
+      required: true
+      schema:
+        $ref: "#/definitions/NewCandidate"
+  responses:
+    201:
+      description: candidate response
+      schema:
+        $ref: "#/definitions/Candidate"
+    304:
+      description: candidate already exists
+      examples:
+        text/html: Candidate already exists
+    default:
+      description: unexpected error
+      schema: 
+        $ref: "#/definitions/Error"

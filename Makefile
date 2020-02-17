@@ -1,35 +1,38 @@
-define CREATEDB
-CREATE ROLE calendar_api;\
-ALTER ROLE calendar_api WITH SUPERUSER LOGIN CREATEDB;\
-CREATE DATABASE calendar_api WITH OWNER calendar_api ENCODING 'UTF8';\
-
-endef
-
-define DROPDB
-DROP ROLE calendar_api;\
-DROP DATABASE calendar_api;\
-
-endef
-
 install: db-create db-migrate
 
 db-create:
-	echo "$(CREATEDB)" | psql -U postgres
-
+	go run db/operations/main.go dbCreate
+	go run db/migrations/main.go init
 
 db-migrate:
-	#run migration
+	go run db/migrations/main.go up
+
+db-migrate-down:
+	go run db/migrations/main.go down
+
+db-seed:
+	go run db/operations/main.go dbSeed
+
+db-clean:
+	go run db/operations/main.go dbClean
 
 db-drop:
-	echo "$(DROPDB)" | psql -U postgres
+	go run db/operations/main.go dbDrop
 
 serve:
 	go run main.go
 
+swagger:
+	(cd docs; \
+	swagger-merger -i api.yaml -o swagger-final.yaml; \
+	swagger serve ./swagger-final.yaml)
+
 test:
-	gocov test -count=1 ./... | gocov report
+	ENV=test make db-clean install db-seed -i
+	ENV=test gocov test ./... | gocov report
+	#ENV=test go test -run -count=1 ./...
 
 test-hot-reload:
-	#gocov test -count=1 ./... | gocov report
+	./watch_test.sh
 
-.PHONY: install db-create db-migrate db-drop serve test test-hot-reload
+.PHONY: install db-create db-migrate db-seed db-clean db-drop serve swagger test test-hot-reload
