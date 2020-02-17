@@ -8,18 +8,28 @@ import (
 )
 
 func PgErrorHandler(err error, resource string) string {
-	errCode := strings.Split(err.Error(), " ")[1]
+	e := strings.Split(err.Error(), " ")
+	errCode := e[1]
 	pluralise := pluralise.NewClient()
+	msg := ""
 
 	switch errCode {
+	case "#23502":
+		msg = fmt.Sprintf(
+			"Missing field %v in %v",
+			e[6],
+			pluralise.Singular(resource),
+		)
+
 	case "#23505":
-		msg := fmt.Sprintf(
+		msg = fmt.Sprintf(
 			"%v already exists",
 			strings.Title(pluralise.Singular(resource)),
 		)
 
-		return msg
 	default:
-		return ""
+
 	}
+
+	return msg
 }

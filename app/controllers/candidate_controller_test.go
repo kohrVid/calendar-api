@@ -264,6 +264,41 @@ func TestNewCandidatesHandlerWhereAlreadyExists(t *testing.T) {
 	)
 }
 
+func TestNewCandidatesHandlerMissingFields(t *testing.T) {
+	conf := config.LoadConfig()
+	user := config.ToMapList(conf["users"])[0]
+
+	data := []byte(
+		fmt.Sprintf(
+			`{"first_name": "%v", "last_name": "%v", "email": "%v"}`,
+			user["first_name"].(string),
+			"",
+			user["email"].(string),
+		),
+	)
+
+	req, err := http.NewRequest("POST", "/candidates", bytes.NewBuffer(data))
+
+	if err != nil {
+		t.Errorf(
+			"Test failed.\nGot:\n\t%v",
+			err.Error(),
+		)
+	}
+
+	resp := httptest.NewRecorder()
+	MockRouter().ServeHTTP(resp, req)
+
+	assert.Equal(t, 304, resp.Code, "304 response expected")
+
+	assert.Equal(
+		t,
+		"Missing field \"last_name\" in candidate",
+		resp.Body.String(),
+		"Missing field error expected",
+	)
+}
+
 func TestEditCandidatesHandler(t *testing.T) {
 	conf := config.LoadConfig()
 	originalUser := config.ToMapList(conf["users"])[0]

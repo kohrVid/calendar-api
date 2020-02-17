@@ -26,6 +26,7 @@ func TestPgErrorHandlerDuplicate(t *testing.T) {
 
 	pluralise := pluralise.NewClient()
 	resource := "candidates"
+
 	err := errors.New(
 		"ERROR #23505 duplicate key value violates unique constraint \"candidates_unique_idx\"",
 	)
@@ -37,6 +38,30 @@ func TestPgErrorHandlerDuplicate(t *testing.T) {
 			strings.Title(pluralise.Singular(resource)),
 		),
 		PgErrorHandler(err, resource),
-		"Should return nil for non postgres error messages",
+		"Should return duplicate row error messages for resource",
+	)
+}
+
+func TestPgErrorHandlerMissingFields(t *testing.T) {
+	pluralise := pluralise.NewClient()
+	column := "first_name"
+	resource := "candidates"
+
+	err := errors.New(
+		fmt.Sprintf(
+			"ERROR #23502 null value in column \"%v\" violates not-null constraint",
+			column,
+		),
+	)
+
+	assert.Equal(
+		t,
+		fmt.Sprintf(
+			"Missing field \"%v\" in %v",
+			column,
+			pluralise.Singular(resource),
+		),
+		PgErrorHandler(err, resource),
+		"Should return missing fields error messages for resource",
 	)
 }

@@ -1,7 +1,6 @@
 package commands
 
 import (
-	"fmt"
 	"os"
 	"testing"
 
@@ -51,11 +50,31 @@ func TestCreateCandidateAlreadyExists(t *testing.T) {
 	}
 
 	res, err := CreateCandidate(&candidate)
-	fmt.Println(err)
 
 	assert.Equal(
 		t,
 		"ERROR #23505 duplicate key value violates unique constraint \"candidates_unique_idx\"",
+		err.Error(),
+		"Error expected",
+	)
+
+	assert.Equal(t, "", res.FirstName, "No candidate details expected")
+	assert.Equal(t, "", res.LastName, "No candidate details expected")
+	assert.Equal(t, "", res.Email, "No candidate details expected")
+}
+
+func TestCreateCandidateWithMissingFields(t *testing.T) {
+	candidate := models.Candidate{
+		FirstName: "",
+		LastName:  "",
+		Email:     "",
+	}
+
+	res, err := CreateCandidate(&candidate)
+
+	assert.Equal(
+		t,
+		"ERROR #23502 null value in column \"first_name\" violates not-null constraint",
 		err.Error(),
 		"Error expected",
 	)
