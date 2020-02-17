@@ -15,6 +15,10 @@ Creating an API for an interview calendar
 * [go](https://golang.org)
 * [gocov](https://github.com/axw/gocov#installation) (required for the `make test`
   command)
+* [go-swagger](https://github.com/go-swagger/go-swagger/)
+* [swagger-merger](https://github.com/WindomZ/swagger-merger)
+  * The library above is an NPM package so this would require
+    [Node/NPM](https://nodejs.org/en/) as well
 
 ## Install
 
@@ -46,6 +50,10 @@ To reverse a recent migration:
 To run the server, run:
 
     make serve
+
+To view the swagger documentation, run:
+
+    make swagger
 
 To run the test suite:
 

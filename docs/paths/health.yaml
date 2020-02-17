@@ -1,0 +1,8 @@
+get:
+  description: Get a list of all candidates in the database
+  operationId: "GET /health"
+  responses:
+    200:
+      description: Candidates response
+      examples:
+        text/html: OK

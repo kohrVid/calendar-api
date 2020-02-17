@@ -22,6 +22,11 @@ db-drop:
 serve:
 	go run main.go
 
+swagger:
+	(cd docs; \
+	swagger-merger -i api.yaml -o swagger-final.yaml; \
+	swagger serve ./swagger-final.yaml)
+
 test:
 	ENV=test make db-clean install db-seed -i
 	#ENV=test gocov test -count=1 ./... | gocov report
@@ -30,4 +35,4 @@ test:
 test-hot-reload:
 	./watch_test.sh
 
-.PHONY: install db-create db-migrate db-seed db-clean db-drop serve test test-hot-reload
+.PHONY: install db-create db-migrate db-seed db-clean db-drop serve swagger test test-hot-reload

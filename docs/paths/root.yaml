@@ -1,0 +1,8 @@
+get:
+  description: Root path
+  operationId: "GET /"
+  responses:
+    200:
+      description: Calendar API root path response
+      examples:
+        text/html: Calendar API
