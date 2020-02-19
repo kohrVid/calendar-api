@@ -100,6 +100,8 @@ func TestUpdateCandidate(t *testing.T) {
 
 	res := UpdateCandidate(&candidate, params)
 
+	updated_candidate, err := queries.FindCandidate("1")
+
 	expected := models.Candidate{
 		Id:        candidate.Id,
 		FirstName: params.FirstName,
@@ -108,6 +110,7 @@ func TestUpdateCandidate(t *testing.T) {
 	}
 
 	assert.Equal(t, expected, res, "Updated candidate expected")
+	assert.Equal(t, expected, updated_candidate, "Updated candidate expected")
 }
 
 func TestDeleteCandidate(t *testing.T) {

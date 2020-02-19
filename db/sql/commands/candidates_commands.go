@@ -3,10 +3,11 @@ package commands
 import (
 	"fmt"
 
-	"github.com/fatih/structs"
+	structs "github.com/fatih/structs"
 	"github.com/kohrVid/calendar-api/app/models"
 	"github.com/kohrVid/calendar-api/config"
 	"github.com/kohrVid/calendar-api/db"
+	"github.com/kohrVid/calendar-api/db/operations/dbHelpers"
 )
 
 func CreateCandidate(candidate *models.Candidate) (models.Candidate, error) {
@@ -33,18 +34,22 @@ func UpdateCandidate(candidate *models.Candidate, params models.Candidate) model
 	c := structs.New(candidate)
 	p := structs.New(params)
 
-	for _, k := range c.Names() {
-		if !p.Field(k).IsZero() {
-			c.Field(k).Set(p.Field(k).Value())
-		}
-	}
+	sql := fmt.Sprintf(
+		"UPDATE candidates %v WHERE id = %v;",
+		dbHelpers.SetSqlColumns(c, p),
+		candidate.Id,
+	)
 
-	_, err := db.Model(c).Update()
+	fmt.Println(sql)
+
+	_, err := db.Model(c).Exec(sql)
+
 	if err != nil {
 		fmt.Errorf("Error: %v", err)
 	}
 
 	cc := *candidate
+
 	return cc
 }
 

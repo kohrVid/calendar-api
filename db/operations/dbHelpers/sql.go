@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/fatih/structs"
 	"github.com/kohrVid/calendar-api/config"
 	"github.com/kohrVid/calendar-api/db"
 )
@@ -69,4 +70,44 @@ func Seed(conf map[string]interface{}) {
 	if err != nil {
 		log.Fatal(err)
 	}
+}
+
+func SetSqlColumns(model *structs.Struct, params *structs.Struct) string {
+	sql := "SET "
+	for _, k := range model.Names() {
+		if !params.Field(k).IsZero() {
+			col := model.Field(k)
+
+			sql += fmt.Sprintf(
+				"%v = ",
+				model.Field(k).Tag("json"),
+			)
+
+			switch col.Kind().String() {
+			case "string":
+				sql += fmt.Sprintf(
+					"'%v', ",
+					params.Field(k).Value(),
+				)
+
+			default:
+				sql += fmt.Sprintf(
+					"%v, ",
+					params.Field(k).Value(),
+				)
+			}
+
+			/*
+			  This function exists because go-pg doesn't
+			  support the structs library. If it did, the string
+			  manipulation could be replaced with the line below.
+			  Currently this line is required to ensure that the
+			  controller returns the correct JSON object but isn't
+			  used in the ORM command.
+			*/
+			col.Set(params.Field(k).Value())
+		}
+	}
+
+	return sql[:len(sql)-2]
 }
