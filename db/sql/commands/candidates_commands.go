@@ -40,8 +40,6 @@ func UpdateCandidate(candidate *models.Candidate, params models.Candidate) model
 		candidate.Id,
 	)
 
-	fmt.Println(sql)
-
 	_, err := db.Model(c).Exec(sql)
 
 	if err != nil {
