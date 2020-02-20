@@ -36,7 +36,11 @@ func TestCandidatesIndexHandler(t *testing.T) {
 	MockRouter().ServeHTTP(resp, req)
 
 	conf := config.LoadConfig()
-	users := config.ToMapList(conf["users"])
+
+	users := config.ToMapList(
+		conf["data"].(map[string]interface{})["candidates"],
+	)
+
 	user1 := users[0]
 	user2 := users[1]
 
@@ -118,7 +122,10 @@ func TestShowCandidatesHandler(t *testing.T) {
 	MockRouter().ServeHTTP(resp, req)
 
 	conf := config.LoadConfig()
-	user := config.ToMapList(conf["users"])[0]
+
+	user := config.ToMapList(
+		conf["data"].(map[string]interface{})["candidates"],
+	)[0]
 
 	expectedBody := fmt.Sprintf(
 		`{"id":1,"first_name":"%v","last_name":"%v","email":"%v"}
@@ -231,7 +238,10 @@ func TestNewCandidatesHandler(t *testing.T) {
 
 func TestNewCandidatesHandlerWhereAlreadyExists(t *testing.T) {
 	conf := config.LoadConfig()
-	user := config.ToMapList(conf["users"])[0]
+
+	user := config.ToMapList(
+		conf["data"].(map[string]interface{})["candidates"],
+	)[0]
 
 	data := []byte(
 		fmt.Sprintf(
@@ -266,7 +276,10 @@ func TestNewCandidatesHandlerWhereAlreadyExists(t *testing.T) {
 
 func TestNewCandidatesHandlerMissingFields(t *testing.T) {
 	conf := config.LoadConfig()
-	user := config.ToMapList(conf["users"])[0]
+
+	user := config.ToMapList(
+		conf["data"].(map[string]interface{})["candidates"],
+	)[0]
 
 	data := []byte(
 		fmt.Sprintf(
@@ -301,7 +314,10 @@ func TestNewCandidatesHandlerMissingFields(t *testing.T) {
 
 func TestEditCandidatesHandler(t *testing.T) {
 	conf := config.LoadConfig()
-	originalUser := config.ToMapList(conf["users"])[0]
+
+	originalUser := config.ToMapList(
+		conf["data"].(map[string]interface{})["candidates"],
+	)[0]
 
 	user := models.Candidate{
 		Id:        1,

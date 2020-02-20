@@ -41,7 +41,10 @@ func TestCreateCandidate(t *testing.T) {
 
 func TestCreateCandidateAlreadyExists(t *testing.T) {
 	conf := config.LoadConfig()
-	user := config.ToMapList(conf["users"])[0]
+
+	user := config.ToMapList(
+		conf["data"].(map[string]interface{})["candidates"],
+	)[0]
 
 	candidate := models.Candidate{
 		FirstName: user["first_name"].(string),

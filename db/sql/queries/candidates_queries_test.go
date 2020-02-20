@@ -20,7 +20,10 @@ func TestMain(m *testing.M) {
 
 func TestListCandidates(t *testing.T) {
 	conf := config.LoadConfig()
-	users := config.ToMapList(conf["users"])
+
+	users := config.ToMapList(
+		conf["data"].(map[string]interface{})["candidates"],
+	)
 
 	res := ListCandidates()
 
@@ -55,7 +58,10 @@ func TestListCandidatesEmptyDB(t *testing.T) {
 
 func TestFindCandidate(t *testing.T) {
 	conf := config.LoadConfig()
-	user := config.ToMapList(conf["users"])[0]
+
+	user := config.ToMapList(
+		conf["data"].(map[string]interface{})["candidates"],
+	)[0]
 
 	res, err := FindCandidate("1")
 	expected := models.Candidate{
