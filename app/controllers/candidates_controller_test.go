@@ -425,3 +425,59 @@ func TestDeleteCandidatesHandlerWhenCandidateDoesNotExist(t *testing.T) {
 		"Empty hash expected",
 	)
 }
+
+func TestNewCandidateAvailabilityHandler(t *testing.T) {
+	conf := config.LoadConfig()
+
+	timeSlot := config.ToMapList(
+		conf["data"].(map[string]interface{})["time_slots"],
+	)[0]
+
+	data := []byte(
+		fmt.Sprintf(
+			`{"start_time":%v,"duration":%v}`,
+			timeSlot["start_time"].(int),
+			timeSlot["duration"].(int),
+		),
+	)
+
+	// StrictSlash(true) doesn't work in the test environment for some reason
+	req, err := http.NewRequest(
+		"POST",
+		"/candidates/1/availability/",
+		bytes.NewBuffer(data),
+	)
+
+	if err != nil {
+		t.Errorf(
+			"Test failed.\nGot:\n\t%v",
+			err.Error(),
+		)
+	}
+
+	resp := httptest.NewRecorder()
+	MockRouter().ServeHTTP(resp, req)
+
+	expectedBody := fmt.Sprintf(
+		`{"id":3,"start_time":%v,"duration":%v}
+`,
+		timeSlot["start_time"].(int),
+		timeSlot["duration"].(int),
+	)
+
+	assert.Equal(t, 201, resp.Code, "201 response expected")
+
+	assert.Equal(
+		t,
+		"application/json; charset=UTF-8",
+		resp.Header().Get("Content-Type"),
+		"JSON response expected",
+	)
+
+	assert.Equal(
+		t,
+		expectedBody,
+		resp.Body.String(),
+		"New timeSlot expected",
+	)
+}

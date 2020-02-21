@@ -26,10 +26,8 @@ func TimeSlotsIndexHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func ShowTimeSlotsHandler(w http.ResponseWriter, r *http.Request) {
-	p := strings.Split(r.URL.Path, "/")
-	id := p[len(p)-1]
+	id := strings.Split(r.URL.Path, "/")[2]
 	timeSlot, err := queries.FindTimeSlot(id)
-
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
 	if err != nil {
@@ -72,8 +70,7 @@ func NewTimeSlotsHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func EditTimeSlotsHandler(w http.ResponseWriter, r *http.Request) {
-	p := strings.Split(r.URL.Path, "/")
-	id := p[len(p)-1]
+	id := strings.Split(r.URL.Path, "/")[2]
 
 	c, err := ioutil.ReadAll(r.Body)
 	if err != nil {
@@ -104,8 +101,7 @@ func EditTimeSlotsHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func DeleteTimeSlotsHandler(w http.ResponseWriter, r *http.Request) {
-	p := strings.Split(r.URL.Path, "/")
-	id := p[len(p)-1]
+	id := strings.Split(r.URL.Path, "/")[2]
 	timeSlot, err := queries.FindTimeSlot(id)
 
 	if err != nil {

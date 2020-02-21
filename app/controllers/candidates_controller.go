@@ -26,10 +26,8 @@ func CandidatesIndexHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func ShowCandidatesHandler(w http.ResponseWriter, r *http.Request) {
-	p := strings.Split(r.URL.Path, "/")
-	id := p[len(p)-1]
+	id := strings.Split(r.URL.Path, "/")[2]
 	candidate, err := queries.FindCandidate(id)
-
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
 	if err != nil {
@@ -72,8 +70,7 @@ func NewCandidatesHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func EditCandidatesHandler(w http.ResponseWriter, r *http.Request) {
-	p := strings.Split(r.URL.Path, "/")
-	id := p[len(p)-1]
+	id := strings.Split(r.URL.Path, "/")[2]
 
 	c, err := ioutil.ReadAll(r.Body)
 	if err != nil {
@@ -104,8 +101,7 @@ func EditCandidatesHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func DeleteCandidatesHandler(w http.ResponseWriter, r *http.Request) {
-	p := strings.Split(r.URL.Path, "/")
-	id := p[len(p)-1]
+	id := strings.Split(r.URL.Path, "/")[2]
 	candidate, err := queries.FindCandidate(id)
 
 	if err != nil {
