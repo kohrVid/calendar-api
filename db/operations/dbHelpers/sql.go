@@ -3,6 +3,8 @@ package dbHelpers
 import (
 	"fmt"
 	"log"
+	"reflect"
+	"strings"
 
 	"github.com/fatih/structs"
 	"github.com/kohrVid/calendar-api/config"
@@ -44,23 +46,10 @@ $$ LANGUAGE plpgsql;
 }
 
 func Seed(conf map[string]interface{}) {
-	users := config.ToMapList(conf["users"])
-	if len(users) < 1 {
-		log.Fatal("No user to seed")
-	}
+	seedDB := InsertConfSql(conf)
 
-	var seedDB string
-
-	for _, user := range users {
-		s := fmt.Sprintf(`
-			  INSERT INTO candidates (first_name, last_name, email)
-			    VALUES('%v', '%v', '%v');
-			`,
-			user["first_name"],
-			user["last_name"],
-			user["email"],
-		)
-		seedDB += s
+	if len(seedDB) < 1 {
+		log.Fatal("No data to seed")
 	}
 
 	db := db.DBConnect(conf)
@@ -70,6 +59,67 @@ func Seed(conf map[string]interface{}) {
 	if err != nil {
 		log.Fatal(err)
 	}
+}
+
+func InsertConfSql(conf map[string]interface{}) string {
+	d := conf["data"]
+	sql := ""
+
+	if d == nil {
+		return sql
+	}
+
+	data := make(map[string]interface{})
+
+	if reflect.TypeOf(d).String() == "map[interface {}]interface {}" {
+		for k, v := range d.(map[interface{}]interface{}) {
+			data[k.(string)] = v
+		}
+	} else {
+		data = d.(map[string]interface{})
+	}
+
+	for table, rows := range data {
+		for _, row := range config.ToMapList(rows) {
+			cols := []string{}
+			vals := []interface{}{}
+
+			for col, val := range row {
+				cols = append(cols, col)
+				vals = append(vals, val)
+			}
+
+			sql += fmt.Sprintf(
+				"INSERT INTO %v (%v) VALUES(%v);\n",
+				table,
+				strings.Join(cols, ", "),
+				mixedSqlSlice(vals),
+			)
+		}
+	}
+
+	return sql
+}
+
+func mixedSqlSlice(vals []interface{}) string {
+	sql := ""
+	for _, val := range vals {
+		switch reflect.TypeOf(val).String() {
+		case "string":
+			sql += fmt.Sprintf(
+				"'%v', ",
+				val,
+			)
+
+		default:
+			sql += fmt.Sprintf(
+				"%v, ",
+				val,
+			)
+		}
+	}
+
+	return sql[:len(sql)-2]
 }
 
 func SetSqlColumns(model *structs.Struct, params *structs.Struct) string {

@@ -10,53 +10,53 @@ import (
 	"github.com/kohrVid/calendar-api/db/operations/dbHelpers"
 )
 
-func CreateCandidate(candidate *models.Candidate) (models.Candidate, error) {
+func CreateTimeSlot(timeSlot *models.TimeSlot) (models.TimeSlot, error) {
 	conf := config.LoadConfig()
 	db := db.DBConnect(conf)
-	err := db.Insert(candidate)
+	err := db.Insert(timeSlot)
 
 	if err != nil {
-		c := models.Candidate{}
+		c := models.TimeSlot{}
 
 		return c, err
 	}
 
-	c := *candidate
+	c := *timeSlot
 
 	return c, nil
 }
 
-func UpdateCandidate(candidate *models.Candidate, params models.Candidate) models.Candidate {
+func UpdateTimeSlot(timeSlot *models.TimeSlot, params models.TimeSlot) models.TimeSlot {
 	conf := config.LoadConfig()
 	db := db.DBConnect(conf)
 	defer db.Close()
 
-	c := structs.New(candidate)
+	t := structs.New(timeSlot)
 	p := structs.New(params)
 
 	sql := fmt.Sprintf(
-		"UPDATE candidates %v WHERE id = %v;",
-		dbHelpers.SetSqlColumns(c, p),
-		candidate.Id,
+		"UPDATE time_slots %v WHERE id = %v;",
+		dbHelpers.SetSqlColumns(t, p),
+		timeSlot.Id,
 	)
 
-	_, err := db.Model(c).Exec(sql)
+	_, err := db.Model(t).Exec(sql)
 
 	if err != nil {
 		fmt.Errorf("Error: %v", err)
 	}
 
-	cc := *candidate
+	ts := *timeSlot
 
-	return cc
+	return ts
 }
 
-func DeleteCandidate(candidate *models.Candidate) error {
+func DeleteTimeSlot(timeSlot *models.TimeSlot) error {
 	conf := config.LoadConfig()
 	db := db.DBConnect(conf)
 	defer db.Close()
 
-	err := db.Delete(candidate)
+	err := db.Delete(timeSlot)
 	if err != nil {
 		fmt.Errorf("Error: %v", err)
 	}

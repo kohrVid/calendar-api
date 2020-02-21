@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
-	"os"
 	"testing"
 
 	"github.com/kohrVid/calendar-api/app/models"
@@ -14,16 +13,8 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestMain(m *testing.M) {
-	conf := config.LoadConfig()
-	dbHelpers.Clean(conf)
-	dbHelpers.Seed(conf)
-	ret := m.Run()
-	os.Exit(ret)
-}
-
-func TestCandidatesIndexHandler(t *testing.T) {
-	req, err := http.NewRequest("GET", "/candidates", nil)
+func TestTimeSlotsIndexHandler(t *testing.T) {
+	req, err := http.NewRequest("GET", "/time_slots", nil)
 
 	if err != nil {
 		t.Errorf(
@@ -36,19 +27,21 @@ func TestCandidatesIndexHandler(t *testing.T) {
 	MockRouter().ServeHTTP(resp, req)
 
 	conf := config.LoadConfig()
-	users := config.ToMapList(conf["users"])
-	user1 := users[0]
-	user2 := users[1]
+
+	timeSlots := config.ToMapList(
+		conf["data"].(map[string]interface{})["time_slots"],
+	)
+
+	timeSlot1 := timeSlots[0]
+	timeSlot2 := timeSlots[1]
 
 	expectedBody := fmt.Sprintf(
-		`[{"id":1,"first_name":"%v","last_name":"%v","email":"%v"},{"id":2,"first_name":"%v","last_name":"%v","email":"%v"}]
+		`[{"id":1,"start_time":%v,"duration":%v},{"id":2,"start_time":%v,"duration":%v}]
 `,
-		user1["first_name"].(string),
-		user1["last_name"].(string),
-		user1["email"].(string),
-		user2["first_name"].(string),
-		user2["last_name"].(string),
-		user2["email"].(string),
+		timeSlot1["start_time"].(int),
+		timeSlot1["duration"].(int),
+		timeSlot2["start_time"].(int),
+		timeSlot2["duration"].(int),
 	)
 
 	assert.Equal(t, 200, resp.Code, "200 response expected")
@@ -64,15 +57,15 @@ func TestCandidatesIndexHandler(t *testing.T) {
 		t,
 		expectedBody,
 		resp.Body.String(),
-		"List of candidates expected",
+		"List of timeSlots expected",
 	)
 }
 
-func TestCandidatesIndexHandlerEmpty(t *testing.T) {
+func TestTimeSlotsIndexHandlerEmpty(t *testing.T) {
 	conf := config.LoadConfig()
 	dbHelpers.Clean(conf)
 
-	req, err := http.NewRequest("GET", "/candidates", nil)
+	req, err := http.NewRequest("GET", "/time_slots", nil)
 
 	if err != nil {
 		t.Errorf(
@@ -98,14 +91,14 @@ func TestCandidatesIndexHandlerEmpty(t *testing.T) {
 		t,
 		expectedBody,
 		resp.Body.String(),
-		"List of candidates expected",
+		"List of timeSlots expected",
 	)
 
 	dbHelpers.Seed(conf)
 }
 
-func TestShowCandidatesHandler(t *testing.T) {
-	req, err := http.NewRequest("GET", "/candidates/1", nil)
+func TestShowTimeSlotsHandler(t *testing.T) {
+	req, err := http.NewRequest("GET", "/time_slots/1", nil)
 
 	if err != nil {
 		t.Errorf(
@@ -118,14 +111,16 @@ func TestShowCandidatesHandler(t *testing.T) {
 	MockRouter().ServeHTTP(resp, req)
 
 	conf := config.LoadConfig()
-	user := config.ToMapList(conf["users"])[0]
+
+	timeSlot := config.ToMapList(
+		conf["data"].(map[string]interface{})["time_slots"],
+	)[0]
 
 	expectedBody := fmt.Sprintf(
-		`{"id":1,"first_name":"%v","last_name":"%v","email":"%v"}
+		`{"id":1,"start_time":%v,"duration":%v}
 `,
-		user["first_name"].(string),
-		user["last_name"].(string),
-		user["email"].(string),
+		timeSlot["start_time"].(int),
+		timeSlot["duration"].(int),
 	)
 
 	assert.Equal(t, 200, resp.Code, "200 response expected")
@@ -141,12 +136,12 @@ func TestShowCandidatesHandler(t *testing.T) {
 		t,
 		expectedBody,
 		resp.Body.String(),
-		"JSON of candidate expected",
+		"JSON of timeSlot expected",
 	)
 }
 
-func TestShowCandidatesHandlerWhenCandidateDoesNotExist(t *testing.T) {
-	req, err := http.NewRequest("GET", "/candidates/1000", nil)
+func TestShowTimeSlotsHandlerWhenTimeSlotDoesNotExist(t *testing.T) {
+	req, err := http.NewRequest("GET", "/time_slots/1000", nil)
 
 	if err != nil {
 		t.Errorf(
@@ -176,23 +171,21 @@ func TestShowCandidatesHandlerWhenCandidateDoesNotExist(t *testing.T) {
 	)
 }
 
-func TestNewCandidatesHandler(t *testing.T) {
-	user := models.Candidate{
-		FirstName: "Barnie",
-		LastName:  "McAlister",
-		Email:     "barnie.mcalister@example.com",
+func TestNewTimeSlotsHandler(t *testing.T) {
+	timeSlot := models.TimeSlot{
+		StartTime: 13,
+		Duration:  3,
 	}
 
 	data := []byte(
 		fmt.Sprintf(
-			`{"first_name": "%v", "last_name": "%v", "email": "%v"}`,
-			user.FirstName,
-			user.LastName,
-			user.Email,
+			`{"start_time":%v,"duration":%v}`,
+			timeSlot.StartTime,
+			timeSlot.Duration,
 		),
 	)
 
-	req, err := http.NewRequest("POST", "/candidates", bytes.NewBuffer(data))
+	req, err := http.NewRequest("POST", "/time_slots", bytes.NewBuffer(data))
 
 	if err != nil {
 		t.Errorf(
@@ -205,11 +198,10 @@ func TestNewCandidatesHandler(t *testing.T) {
 	MockRouter().ServeHTTP(resp, req)
 
 	expectedBody := fmt.Sprintf(
-		`{"id":3,"first_name":"%v","last_name":"%v","email":"%v"}
+		`{"id":3,"start_time":%v,"duration":%v}
 `,
-		user.FirstName,
-		user.LastName,
-		user.Email,
+		timeSlot.StartTime,
+		timeSlot.Duration,
 	)
 
 	assert.Equal(t, 201, resp.Code, "201 response expected")
@@ -225,24 +217,25 @@ func TestNewCandidatesHandler(t *testing.T) {
 		t,
 		expectedBody,
 		resp.Body.String(),
-		"New candidate expected",
+		"New timeSlot expected",
 	)
 }
 
-func TestNewCandidatesHandlerWhereAlreadyExists(t *testing.T) {
+func TestNewTimeSlotsHandlerMissingFields(t *testing.T) {
 	conf := config.LoadConfig()
-	user := config.ToMapList(conf["users"])[0]
+
+	timeSlot := config.ToMapList(
+		conf["data"].(map[string]interface{})["time_slots"],
+	)[0]
 
 	data := []byte(
 		fmt.Sprintf(
-			`{"first_name": "%v", "last_name": "%v", "email": "%v"}`,
-			user["first_name"].(string),
-			user["last_name"].(string),
-			user["email"].(string),
+			`{"start_time":%v}`,
+			timeSlot["start_time"].(int),
 		),
 	)
 
-	req, err := http.NewRequest("POST", "/candidates", bytes.NewBuffer(data))
+	req, err := http.NewRequest("POST", "/time_slots", bytes.NewBuffer(data))
 
 	if err != nil {
 		t.Errorf(
@@ -258,66 +251,33 @@ func TestNewCandidatesHandlerWhereAlreadyExists(t *testing.T) {
 
 	assert.Equal(
 		t,
-		"Candidate already exists",
-		resp.Body.String(),
-		"Duplicate message expected",
-	)
-}
-
-func TestNewCandidatesHandlerMissingFields(t *testing.T) {
-	conf := config.LoadConfig()
-	user := config.ToMapList(conf["users"])[0]
-
-	data := []byte(
-		fmt.Sprintf(
-			`{"first_name": "%v", "last_name": "%v", "email": "%v"}`,
-			user["first_name"].(string),
-			"",
-			user["email"].(string),
-		),
-	)
-
-	req, err := http.NewRequest("POST", "/candidates", bytes.NewBuffer(data))
-
-	if err != nil {
-		t.Errorf(
-			"Test failed.\nGot:\n\t%v",
-			err.Error(),
-		)
-	}
-
-	resp := httptest.NewRecorder()
-	MockRouter().ServeHTTP(resp, req)
-
-	assert.Equal(t, 304, resp.Code, "304 response expected")
-
-	assert.Equal(
-		t,
-		"Missing field \"last_name\" in candidate",
+		"Missing field \"duration\" in timeSlot",
 		resp.Body.String(),
 		"Missing field error expected",
 	)
 }
 
-func TestEditCandidatesHandler(t *testing.T) {
+func TestEditTimeSlotsHandler(t *testing.T) {
 	conf := config.LoadConfig()
-	originalUser := config.ToMapList(conf["users"])[0]
 
-	user := models.Candidate{
-		Id:        1,
-		FirstName: "Alexandra",
+	originalTimeSlot := config.ToMapList(
+		conf["data"].(map[string]interface{})["time_slots"],
+	)[0]
+
+	timeSlot := models.TimeSlot{
+		Id:       1,
+		Duration: 4,
 	}
 
 	data := []byte(
 		fmt.Sprintf(
-			`{"first_name": "%v", "last_name": "%v", "email": "%v"}`,
-			user.FirstName,
-			originalUser["last_name"],
-			originalUser["email"],
+			`{"start_time":%v,"duration":%v}`,
+			originalTimeSlot["start_time"].(int),
+			timeSlot.Duration,
 		),
 	)
 
-	req, err := http.NewRequest("PATCH", "/candidates/1", bytes.NewBuffer(data))
+	req, err := http.NewRequest("PATCH", "/time_slots/1", bytes.NewBuffer(data))
 
 	if err != nil {
 		t.Errorf(
@@ -330,11 +290,10 @@ func TestEditCandidatesHandler(t *testing.T) {
 	MockRouter().ServeHTTP(resp, req)
 
 	expectedBody := fmt.Sprintf(
-		`{"id":1,"first_name":"%v","last_name":"%v","email":"%v"}
+		`{"id":1,"start_time":%v,"duration":%v}
 `,
-		user.FirstName,
-		originalUser["last_name"],
-		originalUser["email"],
+		originalTimeSlot["start_time"].(int),
+		timeSlot.Duration,
 	)
 
 	assert.Equal(t, 200, resp.Code, "200 response expected")
@@ -350,12 +309,12 @@ func TestEditCandidatesHandler(t *testing.T) {
 		t,
 		expectedBody,
 		resp.Body.String(),
-		"Updated candidate expected",
+		"Updated time slot expected",
 	)
 }
 
-func TestDeleteCandidatesHandler(t *testing.T) {
-	req, err := http.NewRequest("DELETE", "/candidates/1", nil)
+func TestDeleteTimeSlotsHandler(t *testing.T) {
+	req, err := http.NewRequest("DELETE", "/time_slots/1", nil)
 
 	if err != nil {
 		t.Errorf(
@@ -367,7 +326,7 @@ func TestDeleteCandidatesHandler(t *testing.T) {
 	resp := httptest.NewRecorder()
 	MockRouter().ServeHTTP(resp, req)
 
-	expectedBody := fmt.Sprintf("Candidate #%v deleted", 1)
+	expectedBody := fmt.Sprintf("TimeSlot #%v deleted", 1)
 
 	assert.Equal(t, 200, resp.Code, "200 response expected")
 
@@ -379,8 +338,8 @@ func TestDeleteCandidatesHandler(t *testing.T) {
 	)
 }
 
-func TestDeleteCandidatesHandlerWhenCandidateDoesNotExist(t *testing.T) {
-	req, err := http.NewRequest("DELETE", "/candidates/1000", nil)
+func TestDeleteTimeSlotsHandlerWhenTimeSlotDoesNotExist(t *testing.T) {
+	req, err := http.NewRequest("DELETE", "/time_slots/1000", nil)
 
 	if err != nil {
 		t.Errorf(
