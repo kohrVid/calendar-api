@@ -1,6 +1,9 @@
 # Calendar API
 
-Creating an API for an interview calendar
+Creating an API for an interview calendar. This was originally intended to be
+part of a coding challenge for a role I applied for but I had issues with my
+laptop and fucked up. So now I'm using this to try out ideas for a basic CRUD
+application in Golang.
 
 <!-- vim-markdown-toc GFM -->
 
@@ -13,6 +16,7 @@ Creating an API for an interview calendar
 ## Prerequisites
 
 * [go](https://golang.org)
+* [PostgreSQL v10+](https://www.postgresql.org/)
 * [gocov](https://github.com/axw/gocov#installation) (required for the `make test`
   command)
 * [go-swagger](https://github.com/go-swagger/go-swagger/)
