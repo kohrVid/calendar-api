@@ -63,6 +63,15 @@ func Seed(conf map[string]interface{}) {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	_, err = db.Exec(
+		`INSERT INTO candidate_time_slots
+		  (candidate_id, time_slot_id) VALUES(1, 1)`,
+	)
+
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 
 func InsertConfSql(conf map[string]interface{}) string {

@@ -64,6 +64,7 @@ func TestFindCandidate(t *testing.T) {
 	)[0]
 
 	res, err := FindCandidate("1")
+
 	expected := models.Candidate{
 		Id:        1,
 		FirstName: user["first_name"].(string),
