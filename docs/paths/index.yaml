@@ -6,3 +6,11 @@
   $ref: ./candidates.yaml
 /candidates/:id:
   $ref: ./candidates_id.yaml
+/candidates/:candidate_id/availability:
+  $ref: ./candidate_availability.yaml
+/candidates/:candidate_id/availability/:id:
+  $ref: ./candidate_availability_id.yaml
+/time_slots:
+  $ref: ./time_slots.yaml
+/time_slots/:id:
+  $ref: ./time_slots_id.yaml

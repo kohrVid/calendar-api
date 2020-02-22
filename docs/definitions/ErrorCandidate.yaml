@@ -1,4 +1,4 @@
-title: Error
+title: ErrorCandidate
 description: The object returned in the event of an error
 type: object
 required:

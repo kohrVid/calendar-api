@@ -17,7 +17,7 @@ fi
 inotifywait -e close_write,moved_to,create -mr ./ | grep '\.go$' --line-buffered |
 while read directory events filename; do
   echo $events
-  if [ "$events" == "CLOSE_WRITE,CLOSE" ]
+  if [ "$events" == "CREATE" ]
     then
       make test
   fi

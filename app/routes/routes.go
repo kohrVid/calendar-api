@@ -13,6 +13,7 @@ func Load() http.Handler {
 
 func routes() *mux.Router {
 	r := mux.NewRouter().StrictSlash(true)
+	candidatesAvailabilityResources(r)
 	candidatesResources(r)
 	timeSlotsResources(r)
 	r.HandleFunc("/health", controllers.HealthCheckHandler).Methods("GET")
@@ -49,6 +50,35 @@ func candidatesResources(r *mux.Router) *mux.Router {
 	return r
 }
 
+func candidatesAvailabilityResources(r *mux.Router) *mux.Router {
+	r.HandleFunc(
+		"/candidates/{cid}/availability/{id}",
+		controllers.DeleteCandidateAvailabilityHandler,
+	).Methods("DELETE")
+
+	r.HandleFunc(
+		"/candidates/{cid}/availability/{id}",
+		controllers.EditCandidateAvailabilityHandler,
+	).Methods("PATCH")
+
+	r.HandleFunc(
+		"/candidates/{cid}/availability/{id}",
+		controllers.ShowCandidateAvailabilityHandler,
+	).Methods("GET")
+
+	r.HandleFunc(
+		"/candidates/{cid}/availability",
+		controllers.NewCandidateAvailabilityHandler,
+	).Methods("POST")
+
+	r.HandleFunc(
+		"/candidates/{cid}/availability",
+		controllers.CandidateAvailabilityIndexHandler,
+	).Methods("GET")
+
+	return r
+}
+
 func timeSlotsResources(r *mux.Router) *mux.Router {
 	r.HandleFunc(
 		"/time_slots/{id}",
@@ -72,6 +102,10 @@ func timeSlotsResources(r *mux.Router) *mux.Router {
 
 	r.HandleFunc(
 		"/time_slots",
+		controllers.TimeSlotsIndexHandler,
+	).Methods("GET")
+	r.HandleFunc(
+		"/availability",
 		controllers.TimeSlotsIndexHandler,
 	).Methods("GET")
 

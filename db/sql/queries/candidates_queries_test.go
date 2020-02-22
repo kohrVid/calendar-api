@@ -1,6 +1,7 @@
 package queries
 
 import (
+	"log"
 	"os"
 	"testing"
 
@@ -25,8 +26,6 @@ func TestListCandidates(t *testing.T) {
 		conf["data"].(map[string]interface{})["candidates"],
 	)
 
-	res := ListCandidates()
-
 	candidate1 := models.Candidate{
 		Id:        1,
 		FirstName: users[0]["first_name"].(string),
@@ -42,6 +41,7 @@ func TestListCandidates(t *testing.T) {
 	}
 
 	expected := []models.Candidate{candidate1, candidate2}
+	res := ListCandidates()
 
 	assert.Equal(t, expected, res, "List of candidates expected")
 }
@@ -64,6 +64,11 @@ func TestFindCandidate(t *testing.T) {
 	)[0]
 
 	res, err := FindCandidate("1")
+
+	if err != nil {
+		log.Println(err)
+	}
+
 	expected := models.Candidate{
 		Id:        1,
 		FirstName: user["first_name"].(string),
@@ -88,4 +93,83 @@ func TestFindCandidateThatDoesNotExist(t *testing.T) {
 	assert.Equal(t, "", res.FirstName, "No candidate details expected")
 	assert.Equal(t, "", res.LastName, "No candidate details expected")
 	assert.Equal(t, "", res.Email, "No candidate details expected")
+}
+
+func TestListCandidateTimeSlots(t *testing.T) {
+	conf := config.LoadConfig()
+	ts := config.ToMapList(
+		conf["data"].(map[string]interface{})["time_slots"],
+	)[0]
+
+	res := ListCandidateTimeSlots("1")
+
+	timeSlot := models.TimeSlot{
+		Id:        1,
+		StartTime: ts["start_time"].(int),
+		Duration:  ts["duration"].(int),
+	}
+
+	expected := []models.TimeSlot{timeSlot}
+
+	assert.Equal(t, expected, res, "List of candidates expected")
+}
+
+func TestListCandidateTimeSlotsWhenEmpty(t *testing.T) {
+	res := ListCandidateTimeSlots("2")
+	expected := []models.TimeSlot{}
+
+	assert.Equal(t, expected, res, "Empty list expected")
+}
+
+func TestFindCandidateTimeSlot(t *testing.T) {
+	conf := config.LoadConfig()
+	ts := config.ToMapList(
+		conf["data"].(map[string]interface{})["time_slots"],
+	)[0]
+
+	res, err := FindCandidateTimeSlot("1", "1")
+
+	if err != nil {
+		log.Println(err)
+	}
+
+	expected := models.TimeSlot{
+		Id:        1,
+		StartTime: ts["start_time"].(int),
+		Duration:  ts["duration"].(int),
+	}
+
+	assert.Equal(t, expected, res, "List of candidates expected")
+}
+
+func TestFindCandidateTimeSlotDoesNotExist(t *testing.T) {
+	res, err := FindCandidateTimeSlot("1", "2")
+
+	if err != nil {
+		log.Println(err)
+	}
+
+	assert.Equal(
+		t,
+		"pg: no rows in result set",
+		err.Error(),
+		"Error expected",
+	)
+
+	assert.Equal(t, 0, res.StartTime, "No time slot details expected")
+	assert.Equal(t, 0, res.Duration, "No time slot details expected")
+}
+
+func TestFindCandidateTimeSlotIsForAnotherCandidate(t *testing.T) {
+	res, err := FindCandidateTimeSlot("2", "1")
+
+	assert.Equal(
+		t,
+		"pg: no rows in result set",
+		err.Error(),
+		"Error expected",
+	)
+
+	assert.Equal(t, 0, res.StartTime, "No time slot details expected")
+	assert.Equal(t, 0, res.Duration, "No time slot details expected")
 }

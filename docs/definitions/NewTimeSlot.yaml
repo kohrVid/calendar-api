@@ -1,0 +1,13 @@
+title: New TimeSlot
+description: A new time slot for an interview
+type: object
+required:
+  - start_time
+  - duration
+properties:
+  start_time:
+    type: integer
+    format: int64
+  duration:
+    type: integer
+    format: int64

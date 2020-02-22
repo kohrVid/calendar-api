@@ -1,22 +1,21 @@
 package commands
 
 import (
-	"os"
+	"log"
 	"testing"
 
 	"github.com/kohrVid/calendar-api/app/models"
 	"github.com/kohrVid/calendar-api/config"
+	"github.com/kohrVid/calendar-api/db"
 	"github.com/kohrVid/calendar-api/db/operations/dbHelpers"
 	"github.com/kohrVid/calendar-api/db/sql/queries"
 	"github.com/stretchr/testify/assert"
 )
 
-func TestMain(m *testing.M) {
+func init() {
 	conf := config.LoadConfig()
 	dbHelpers.Clean(conf)
 	dbHelpers.Seed(conf)
-	ret := m.Run()
-	os.Exit(ret)
 }
 
 func TestCreateCandidate(t *testing.T) {
@@ -66,7 +65,7 @@ func TestCreateCandidateAlreadyExists(t *testing.T) {
 	assert.Equal(t, "", res.Email, "No candidate details expected")
 }
 
-func TestCreateCandidateWithMissingFields(t *testing.T) {
+func TestCreateCandidateTimeSlotWithMissingFields(t *testing.T) {
 	candidate := models.Candidate{
 		FirstName: "",
 		LastName:  "",
@@ -103,7 +102,7 @@ func TestUpdateCandidate(t *testing.T) {
 
 	res := UpdateCandidate(&candidate, params)
 
-	updated_candidate, err := queries.FindCandidate("1")
+	updatedCandidate, err := queries.FindCandidate("1")
 
 	expected := models.Candidate{
 		Id:        candidate.Id,
@@ -113,10 +112,11 @@ func TestUpdateCandidate(t *testing.T) {
 	}
 
 	assert.Equal(t, expected, res, "Updated candidate expected")
-	assert.Equal(t, expected, updated_candidate, "Updated candidate expected")
+	assert.Equal(t, expected, updatedCandidate, "Updated candidate expected")
 }
 
 func TestDeleteCandidate(t *testing.T) {
+	conf := config.LoadConfig()
 	id := "1"
 	candidate, err := queries.FindCandidate(id)
 
@@ -148,4 +148,158 @@ func TestDeleteCandidate(t *testing.T) {
 	assert.Equal(t, "", res.FirstName, "No candidate details expected")
 	assert.Equal(t, "", res.LastName, "No candidate details expected")
 	assert.Equal(t, "", res.Email, "No candidate details expected")
+
+	dbHelpers.Clean(conf)
+	dbHelpers.Seed(conf)
+}
+
+func TestCreateCandidateTimeSlot(t *testing.T) {
+	conf := config.LoadConfig()
+	db := db.DBConnect(conf)
+	dbHelpers.Clean(conf)
+	dbHelpers.Seed(conf)
+
+	ts := config.ToMapList(
+		conf["data"].(map[string]interface{})["time_slots"],
+	)[1]
+
+	timeSlot := models.TimeSlot{
+		StartTime: ts["start_time"].(int),
+		Duration:  ts["duration"].(int),
+	}
+
+	res, err := CreateCandidateTimeSlot("2", &timeSlot)
+
+	expected := models.TimeSlot{
+		Id:        3,
+		StartTime: timeSlot.StartTime,
+		Duration:  timeSlot.Duration,
+	}
+
+	expectedCandidateTimeSlot := models.CandidateTimeSlot{
+		Id:          2,
+		CandidateId: 2,
+		TimeSlotId:  3,
+	}
+
+	findCandidateTimeSlot := models.CandidateTimeSlot{Id: 2}
+
+	err = db.Select(
+		&findCandidateTimeSlot,
+	)
+
+	if err != nil {
+		log.Println(err)
+	}
+
+	assert.Equal(t, expected, res, "New timeSlot expected")
+	assert.Equal(t, nil, err, "No error expected")
+
+	assert.Equal(
+		t,
+		expectedCandidateTimeSlot,
+		findCandidateTimeSlot,
+		"New candidate_time_slot association expected",
+	)
+}
+
+func TestCreateCandidateTimeSlotIfAlreadyExists(t *testing.T) {
+	conf := config.LoadConfig()
+
+	ts := config.ToMapList(
+		conf["data"].(map[string]interface{})["time_slots"],
+	)[0]
+
+	timeSlot := models.TimeSlot{
+		StartTime: ts["start_time"].(int),
+		Duration:  ts["duration"].(int),
+	}
+
+	res, err := CreateCandidateTimeSlot("1", &timeSlot)
+
+	assert.Equal(
+		t,
+		"ERROR #23505 time slot already exists for candidate",
+		err.Error(),
+		"Error expected",
+	)
+
+	assert.Equal(
+		t,
+		timeSlot.StartTime,
+		res.StartTime,
+		"No time slot details expected",
+	)
+
+	assert.Equal(
+		t,
+		timeSlot.Duration,
+		res.Duration,
+		"No time slot details expected",
+	)
+}
+
+func TestCreateCandidateWithMissingFields(t *testing.T) {
+	conf := config.LoadConfig()
+
+	ts := config.ToMapList(
+		conf["data"].(map[string]interface{})["time_slots"],
+	)[1]
+
+	timeSlot := models.TimeSlot{
+		Duration: ts["duration"].(int),
+	}
+
+	res, err := CreateCandidateTimeSlot("2", &timeSlot)
+
+	assert.Equal(
+		t,
+		"ERROR #23502 null value in column \"start_time\" violates not-null constraint",
+		err.Error(),
+		"Error expected",
+	)
+
+	assert.Equal(t, 0, res.StartTime, "No time slot details expected")
+	assert.Equal(t, 0, res.Duration, "No time slot details expected")
+
+	dbHelpers.Clean(conf)
+	dbHelpers.Seed(conf)
+}
+
+func TestDeleteCandidateTimeSlot(t *testing.T) {
+	conf := config.LoadConfig()
+	cid := "1"
+	id := "1"
+	timeSlot, err := queries.FindCandidateTimeSlot(cid, id)
+
+	if err != nil {
+		t.Errorf(
+			"Test failed.\nGot:\n\t%v",
+			err.Error(),
+		)
+	}
+
+	err = DeleteCandidateTimeSlot(cid, &timeSlot)
+
+	if err != nil {
+		t.Errorf(
+			"Test failed.\nGot:\n\t%v",
+			err.Error(),
+		)
+	}
+
+	res, err := queries.FindCandidateTimeSlot(cid, id)
+
+	assert.Equal(
+		t,
+		"pg: no rows in result set",
+		err.Error(),
+		"Error expected",
+	)
+
+	assert.Equal(t, 0, res.StartTime, "No time slot details expected")
+	assert.Equal(t, 0, res.Duration, "No time slot details expected")
+
+	dbHelpers.Clean(conf)
+	dbHelpers.Seed(conf)
 }

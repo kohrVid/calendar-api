@@ -26,10 +26,8 @@ func TimeSlotsIndexHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func ShowTimeSlotsHandler(w http.ResponseWriter, r *http.Request) {
-	p := strings.Split(r.URL.Path, "/")
-	id := p[len(p)-1]
+	id := strings.Split(r.URL.Path, "/")[2]
 	timeSlot, err := queries.FindTimeSlot(id)
-
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
 	if err != nil {
@@ -46,14 +44,14 @@ func ShowTimeSlotsHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func NewTimeSlotsHandler(w http.ResponseWriter, r *http.Request) {
-	c, err := ioutil.ReadAll(r.Body)
+	ts, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		fmt.Errorf("Error: %v", err)
 	}
 
 	timeSlot := new(models.TimeSlot)
 
-	err = json.Unmarshal(c, timeSlot)
+	err = json.Unmarshal(ts, timeSlot)
 	if err != nil {
 		fmt.Errorf("Error: %v", err)
 	}
@@ -61,7 +59,7 @@ func NewTimeSlotsHandler(w http.ResponseWriter, r *http.Request) {
 	_, err = commands.CreateTimeSlot(timeSlot)
 	if err != nil {
 		w.WriteHeader(http.StatusNotModified)
-		body := dbHelpers.PgErrorHandler(err, "timeSlots")
+		body := dbHelpers.PgErrorHandler(err, "time_slots")
 		fmt.Fprintf(w, body)
 	} else {
 
@@ -72,10 +70,9 @@ func NewTimeSlotsHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func EditTimeSlotsHandler(w http.ResponseWriter, r *http.Request) {
-	p := strings.Split(r.URL.Path, "/")
-	id := p[len(p)-1]
+	id := strings.Split(r.URL.Path, "/")[2]
 
-	c, err := ioutil.ReadAll(r.Body)
+	ts, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		fmt.Errorf("Error: %v", err)
 	}
@@ -87,7 +84,7 @@ func EditTimeSlotsHandler(w http.ResponseWriter, r *http.Request) {
 
 	params := new(models.TimeSlot)
 
-	err = json.Unmarshal(c, params)
+	err = json.Unmarshal(ts, params)
 	if err != nil {
 		fmt.Errorf("Error: %v", err)
 	}
@@ -104,8 +101,7 @@ func EditTimeSlotsHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func DeleteTimeSlotsHandler(w http.ResponseWriter, r *http.Request) {
-	p := strings.Split(r.URL.Path, "/")
-	id := p[len(p)-1]
+	id := strings.Split(r.URL.Path, "/")[2]
 	timeSlot, err := queries.FindTimeSlot(id)
 
 	if err != nil {

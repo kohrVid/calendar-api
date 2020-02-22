@@ -1,0 +1,10 @@
+title: Edit TimeSlot
+description: A edit a time slot's attributes for an interview
+type: object
+properties:
+  start_time:
+    type: integer
+    format: int64
+  duration:
+    type: integer
+    format: int64

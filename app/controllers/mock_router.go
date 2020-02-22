@@ -5,7 +5,31 @@ import (
 )
 
 func MockRouter() *mux.Router {
-	r := mux.NewRouter()
+	r := mux.NewRouter().StrictSlash(true)
+
+	r.HandleFunc(
+		"/candidates/{cid}/availability/{id}",
+		DeleteCandidateAvailabilityHandler,
+	).Methods("DELETE")
+
+	r.HandleFunc(
+		"/candidates/{cid}/availability/{id}",
+		EditCandidateAvailabilityHandler,
+	).Methods("PATCH")
+
+	r.HandleFunc(
+		"/candidates/{cid}/availability/{id}",
+		ShowCandidateAvailabilityHandler,
+	).Methods("GET")
+	r.HandleFunc(
+		"/candidates/{cid}/availability",
+		NewCandidateAvailabilityHandler,
+	).Methods("POST")
+	r.HandleFunc(
+		"/candidates/{cid}/availability",
+		CandidateAvailabilityIndexHandler,
+	).Methods("GET")
+
 	r.HandleFunc("/candidates/{id}", DeleteCandidatesHandler).Methods("DELETE")
 	r.HandleFunc("/candidates/{id}", EditCandidatesHandler).Methods("PATCH")
 	r.HandleFunc("/candidates/{id}", ShowCandidatesHandler).Methods("GET")

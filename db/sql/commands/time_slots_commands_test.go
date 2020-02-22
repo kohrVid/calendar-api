@@ -4,9 +4,17 @@ import (
 	"testing"
 
 	"github.com/kohrVid/calendar-api/app/models"
+	"github.com/kohrVid/calendar-api/config"
+	"github.com/kohrVid/calendar-api/db/operations/dbHelpers"
 	"github.com/kohrVid/calendar-api/db/sql/queries"
 	"github.com/stretchr/testify/assert"
 )
+
+func init() {
+	conf := config.LoadConfig()
+	dbHelpers.Clean(conf)
+	dbHelpers.Seed(conf)
+}
 
 func TestCreateTimeSlot(t *testing.T) {
 	timeSlot := models.TimeSlot{

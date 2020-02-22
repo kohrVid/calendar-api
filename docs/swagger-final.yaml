@@ -31,11 +31,11 @@ paths:
             text/html: Calendar API
   /health:
     get:
-      description: Get a list of all candidates in the database
+      description: Health check for the application
       operationId: GET /health
       responses:
         '200':
-          description: Candidates response
+          description: Health check response
           examples:
             text/html: OK
   /candidates:
@@ -50,9 +50,9 @@ paths:
             items:
               $ref: '#/definitions/Candidate'
         default:
-          description: unexpected error
-          schema:
-            $ref: '#/definitions/Error'
+          description: Unexpected error
+          examples:
+            application/json: []
     post:
       description: Creates a new candidate. Duplicates are not allowed
       operationId: POST /candidates
@@ -65,17 +65,17 @@ paths:
             $ref: '#/definitions/NewCandidate'
       responses:
         '201':
-          description: candidate response
+          description: Candidate response
           schema:
             $ref: '#/definitions/Candidate'
         '304':
-          description: candidate already exists
+          description: Candidate already exists
           examples:
             text/html: Candidate already exists
         default:
-          description: unexpected error
+          description: Unexpected error
           schema:
-            $ref: '#/definitions/Error'
+            $ref: '#/definitions/ErrorCandidate'
   '/candidates/:id':
     get:
       description: returns a candidate based on the ID supplied
@@ -89,19 +89,19 @@ paths:
           format: int64
       responses:
         '200':
-          description: candidate response
+          description: Candidate response
           schema:
             $ref: '#/definitions/Candidate'
         '404':
-          description: candidate not found
+          description: Candidate not found
           examples:
             application/json: {}
         default:
-          description: unexpected error
+          description: Unexpected error
           schema:
-            $ref: '#/definitions/Error'
+            $ref: '#/definitions/ErrorCandidate'
     patch:
-      description: updates a candidate based on the ID and parameters supplied
+      description: Updates a candidate based on the ID and parameters supplied
       operationId: 'PATCH /candidates/:id'
       parameters:
         - name: id
@@ -117,19 +117,19 @@ paths:
             $ref: '#/definitions/EditCandidate'
       responses:
         '200':
-          description: candidate response
+          description: Candidate response
           schema:
             $ref: '#/definitions/Candidate'
         '404':
-          description: candidate not found
+          description: Candidate not found
           examples:
             application/json: {}
         default:
-          description: unexpected error
+          description: Unexpected error
           schema:
-            $ref: '#/definitions/Error'
+            $ref: '#/definitions/ErrorCandidate'
     delete:
-      description: deletes a single candidate based on the ID supplied
+      description: Deletes a single candidate based on the ID supplied
       operationId: 'DELETE /candidates/:id'
       parameters:
         - name: id
@@ -140,17 +140,278 @@ paths:
           format: int64
       responses:
         '200':
-          description: candidate deleted
+          description: Candidate deleted
           examples:
             text/html: 'Candidate #1 deleted'
         '404':
-          description: candidate not found
+          description: Candidate not found
           examples:
             application/json: {}
         default:
-          description: unexpected error
+          description: Unexpected error
           schema:
-            $ref: '#/definitions/Error'
+            $ref: '#/definitions/ErrorCandidate'
+  '/candidates/:candidate_id/availability':
+    get:
+      description: Get a list of all candidates in the database
+      operationId: 'GET /candidates/:candidate_id/availability'
+      parameters:
+        - name: candidate_id
+          in: path
+          description: ID of the candidate in question
+          required: true
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Candidate availability response
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/TimeSlot'
+        default:
+          description: Unexpected error
+          examples:
+            application/json: []
+    post:
+      description: >-
+        Creates a new time slot for a given candidate. Duplicates are not
+        allowed
+      operationId: 'POST /candidates/:candidate_id/availability'
+      parameters:
+        - name: candidate_id
+          in: path
+          description: ID of the candidate in question
+          required: true
+          type: integer
+          format: int64
+        - name: availability
+          in: body
+          description: Time slot to add to the database
+          required: true
+          schema:
+            $ref: '#/definitions/NewTimeSlot'
+      responses:
+        '201':
+          description: Candidate availability response
+          schema:
+            $ref: '#/definitions/TimeSlot'
+        '304':
+          description: Time slot already exists
+          examples:
+            text/html: Time slot already exists
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/ErrorTimeSlot'
+  '/candidates/:candidate_id/availability/:id':
+    get:
+      description: returns a timeslot for a given candidate based on the IDs supplied
+      operationId: 'GET /candidates/:candidate_id/availability/:id'
+      parameters:
+        - name: candidate_id
+          in: path
+          description: ID of the candidate in question
+          required: true
+          type: integer
+          format: int64
+        - name: id
+          in: path
+          description: ID of the time slot in question
+          required: true
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Candidate availability response
+          schema:
+            $ref: '#/definitions/TimeSlot'
+        '404':
+          description: Time slot not found
+          examples:
+            application/json: {}
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/ErrorTimeSlot'
+    patch:
+      description: Updates a candidate based on the ID and parameters supplied
+      operationId: 'PATCH /candidates/:candidate_id/availability/:id'
+      parameters:
+        - name: candidate_id
+          in: path
+          description: ID of the candidate in question
+          required: true
+          type: integer
+          format: int64
+        - name: id
+          in: path
+          description: ID of the time slot in question
+          required: true
+          type: integer
+          format: int64
+        - name: time_slot
+          in: body
+          description: Time slot parameters to update
+          schema:
+            $ref: '#/definitions/EditTimeSlot'
+      responses:
+        '200':
+          description: Candidate availability response
+          schema:
+            $ref: '#/definitions/TimeSlot'
+        '404':
+          description: Time slot not found
+          examples:
+            application/json: {}
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/ErrorTimeSlot'
+    delete:
+      description: >-
+        Deletes a single time slot based on the candidate ID and time slot ID
+        provided
+      operationId: 'DELETE /candidates/:candidate_id/availability/:id'
+      parameters:
+        - name: candidate_id
+          in: path
+          description: ID of the candidate in question
+          required: true
+          type: integer
+          format: int64
+        - name: id
+          in: path
+          description: ID of the time slot to delete
+          required: true
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Time slot deleted
+          examples:
+            text/html: 'TimeSlot #1 deleted'
+        '404':
+          description: Time slot not found
+          examples:
+            application/json: {}
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/ErrorTimeSlot'
+  /time_slots:
+    get:
+      description: Get a list of all time slots in the database
+      operationId: GET /time_slots
+      responses:
+        '200':
+          description: TimeSlots response
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/TimeSlot'
+        default:
+          description: Unexpected error
+          examples:
+            application/json: []
+    post:
+      description: Creates a new time slot. Duplicates are not allowed
+      operationId: POST /time_slots
+      parameters:
+        - name: time_slots
+          in: body
+          description: TimeSlot to add to the database
+          required: true
+          schema:
+            $ref: '#/definitions/NewTimeSlot'
+      responses:
+        '201':
+          description: Time slot response
+          schema:
+            $ref: '#/definitions/TimeSlot'
+        '304':
+          description: Time slot already exists
+          examples:
+            text/html: TimeSlot already exists
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/ErrorTimeSlot'
+  '/time_slots/:id':
+    get:
+      description: Returns a time slot based on the ID supplied
+      operationId: 'GET /time_slots/:id'
+      parameters:
+        - name: id
+          in: path
+          description: ID of time slot to find
+          required: true
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Time slot response
+          schema:
+            $ref: '#/definitions/TimeSlot'
+        '404':
+          description: Time slot not found
+          examples:
+            application/json: {}
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/ErrorTimeSlot'
+    patch:
+      description: Updates a time slot based on the ID and parameters supplied
+      operationId: 'PATCH /time_slots/:id'
+      parameters:
+        - name: id
+          in: path
+          description: ID of time slot to edit
+          required: true
+          type: integer
+          format: int64
+        - name: time_slots
+          in: body
+          description: TimeSlot parameters to update
+          schema:
+            $ref: '#/definitions/EditTimeSlot'
+      responses:
+        '200':
+          description: Time slot response
+          schema:
+            $ref: '#/definitions/TimeSlot'
+        '404':
+          description: Time slot not found
+          examples:
+            application/json: {}
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/ErrorTimeSlot'
+    delete:
+      description: Deletes a single time slot based on the ID supplied
+      operationId: 'DELETE /time_slots/:id'
+      parameters:
+        - name: id
+          in: path
+          description: ID of time slot to delete
+          required: true
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Time slot deleted
+          examples:
+            text/html: 'TimeSlot #1 deleted'
+        '404':
+          description: Time slot not found
+          examples:
+            application/json: {}
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/ErrorTimeSlot'
 definitions:
   Candidate:
     title: Candidate
@@ -190,8 +451,8 @@ definitions:
         type: string
       email:
         type: string
-  Error:
-    title: Error
+  ErrorCandidate:
+    title: ErrorCandidate
     description: The object returned in the event of an error
     type: object
     required:
@@ -205,3 +466,54 @@ definitions:
         type: string
       email:
         type: string
+  TimeSlot:
+    title: TimeSlot
+    description: A time slot for an interview
+    type: object
+    allOf:
+      - $ref: '#/definitions/NewTimeSlot'
+    required:
+      - id
+    properties:
+      id:
+        type: integer
+        format: int64
+  NewTimeSlot:
+    title: New TimeSlot
+    description: A new time slot for an interview
+    type: object
+    required:
+      - start_time
+      - duration
+    properties:
+      start_time:
+        type: integer
+        format: int64
+      duration:
+        type: integer
+        format: int64
+  EditTimeSlot:
+    title: Edit TimeSlot
+    description: A edit a time slot's attributes for an interview
+    type: object
+    properties:
+      start_time:
+        type: integer
+        format: int64
+      duration:
+        type: integer
+        format: int64
+  ErrorTimeSlot:
+    title: ErrorTimeSlot
+    description: The object returned in the event of an error
+    type: object
+    required:
+      - start_time
+      - duration
+    properties:
+      start_time:
+        type: integer
+        format: int64
+      duration:
+        type: integer
+        format: int64

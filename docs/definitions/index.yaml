@@ -4,5 +4,13 @@ NewCandidate:
   $ref: ./NewCandidate.yaml
 EditCandidate:
   $ref: ./EditCandidate.yaml
-Error:
-  $ref: ./Error.yaml
+ErrorCandidate:
+  $ref: ./ErrorCandidate.yaml
+TimeSlot:
+  $ref: ./TimeSlot.yaml
+NewTimeSlot:
+  $ref: ./NewTimeSlot.yaml
+EditTimeSlot:
+  $ref: ./EditTimeSlot.yaml
+ErrorTimeSlot:
+  $ref: ./ErrorTimeSlot.yaml

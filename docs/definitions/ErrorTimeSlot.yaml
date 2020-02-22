@@ -1,0 +1,13 @@
+title: ErrorTimeSlot
+description: The object returned in the event of an error
+type: object
+required:
+  - start_time
+  - duration
+properties:
+  start_time:
+    type: integer
+    format: int64
+  duration:
+    type: integer
+    format: int64

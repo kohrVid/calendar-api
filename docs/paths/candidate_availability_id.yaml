@@ -1,0 +1,92 @@
+get:
+  description: returns a timeslot for a given candidate based on the IDs supplied
+  operationId: "GET /candidates/:candidate_id/availability/:id"
+  parameters:
+    - name: candidate_id
+      in: path
+      description: ID of the candidate in question
+      required: true
+      type: integer
+      format: int64
+    - name: id
+      in: path
+      description: ID of the time slot in question
+      required: true
+      type: integer
+      format: int64
+  responses:
+    200:
+      description: Candidate availability response
+      schema:
+        $ref: "#/definitions/TimeSlot"
+    404:
+      description: Time slot not found
+      examples:
+        application/json: {}
+    default:
+      description: Unexpected error
+      schema:
+        $ref: "#/definitions/ErrorTimeSlot"
+patch:
+  description: Updates a candidate based on the ID and parameters supplied
+  operationId: "PATCH /candidates/:candidate_id/availability/:id"
+  parameters:
+    - name: candidate_id
+      in: path
+      description: ID of the candidate in question
+      required: true
+      type: integer
+      format: int64
+    - name: id
+      in: path
+      description: ID of the time slot in question
+      required: true
+      type: integer
+      format: int64
+    - name: time_slot
+      in: body
+      description: Time slot parameters to update
+      schema:
+        $ref: "#/definitions/EditTimeSlot"
+  responses:
+    200:
+      description: Candidate availability response
+      schema:
+        $ref: "#/definitions/TimeSlot"
+    404:
+      description: Time slot not found
+      examples:
+        application/json: {}
+    default:
+      description: Unexpected error
+      schema:
+        $ref: "#/definitions/ErrorTimeSlot"
+delete:
+  description: Deletes a single time slot based on the candidate ID and time slot ID provided
+  operationId: "DELETE /candidates/:candidate_id/availability/:id"
+  parameters:
+    - name: candidate_id
+      in: path
+      description: ID of the candidate in question
+      required: true
+      type: integer
+      format: int64
+    - name: id
+      in: path
+      description: ID of the time slot to delete
+      required: true
+      type: integer
+      format: int64
+  responses:
+    200:
+      description: Time slot deleted
+      examples:
+        text/html: "TimeSlot #1 deleted"
+    404:
+      description: Time slot not found
+      examples:
+        application/json: {}
+    default:
+      description: Unexpected error
+      schema:
+        $ref: "#/definitions/ErrorTimeSlot"

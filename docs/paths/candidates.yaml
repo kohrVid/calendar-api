@@ -9,9 +9,9 @@ get:
         items:
           $ref: "#/definitions/Candidate"
     default:
-      description: unexpected error
-      schema:
-        $ref: "#/definitions/Error"
+      description: Unexpected error
+      examples:
+        application/json: []
 post:
   description: Creates a new candidate. Duplicates are not allowed
   operationId: "POST /candidates"
@@ -24,14 +24,14 @@ post:
         $ref: "#/definitions/NewCandidate"
   responses:
     201:
-      description: candidate response
+      description: Candidate response
       schema:
         $ref: "#/definitions/Candidate"
     304:
-      description: candidate already exists
+      description: Candidate already exists
       examples:
         text/html: Candidate already exists
     default:
-      description: unexpected error
-      schema: 
-        $ref: "#/definitions/Error"
+      description: Unexpected error
+      schema:
+        $ref: "#/definitions/ErrorCandidate"
