@@ -44,14 +44,14 @@ func ShowTimeSlotsHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func NewTimeSlotsHandler(w http.ResponseWriter, r *http.Request) {
-	c, err := ioutil.ReadAll(r.Body)
+	ts, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		fmt.Errorf("Error: %v", err)
 	}
 
 	timeSlot := new(models.TimeSlot)
 
-	err = json.Unmarshal(c, timeSlot)
+	err = json.Unmarshal(ts, timeSlot)
 	if err != nil {
 		fmt.Errorf("Error: %v", err)
 	}
@@ -59,7 +59,7 @@ func NewTimeSlotsHandler(w http.ResponseWriter, r *http.Request) {
 	_, err = commands.CreateTimeSlot(timeSlot)
 	if err != nil {
 		w.WriteHeader(http.StatusNotModified)
-		body := dbHelpers.PgErrorHandler(err, "timeSlots")
+		body := dbHelpers.PgErrorHandler(err, "time_slots")
 		fmt.Fprintf(w, body)
 	} else {
 
@@ -72,7 +72,7 @@ func NewTimeSlotsHandler(w http.ResponseWriter, r *http.Request) {
 func EditTimeSlotsHandler(w http.ResponseWriter, r *http.Request) {
 	id := strings.Split(r.URL.Path, "/")[2]
 
-	c, err := ioutil.ReadAll(r.Body)
+	ts, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		fmt.Errorf("Error: %v", err)
 	}
@@ -84,7 +84,7 @@ func EditTimeSlotsHandler(w http.ResponseWriter, r *http.Request) {
 
 	params := new(models.TimeSlot)
 
-	err = json.Unmarshal(c, params)
+	err = json.Unmarshal(ts, params)
 	if err != nil {
 		fmt.Errorf("Error: %v", err)
 	}

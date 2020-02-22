@@ -63,7 +63,7 @@ func TestTimeSlotsIndexHandler(t *testing.T) {
 		t,
 		expectedBody,
 		resp.Body.String(),
-		"List of timeSlots expected",
+		"List of time slots expected",
 	)
 }
 
@@ -97,7 +97,7 @@ func TestTimeSlotsIndexHandlerEmpty(t *testing.T) {
 		t,
 		expectedBody,
 		resp.Body.String(),
-		"List of timeSlots expected",
+		"List of time slots expected",
 	)
 
 	dbHelpers.Seed(conf)
@@ -142,7 +142,7 @@ func TestShowTimeSlotsHandler(t *testing.T) {
 		t,
 		expectedBody,
 		resp.Body.String(),
-		"JSON of timeSlot expected",
+		"JSON of time slot expected",
 	)
 }
 
@@ -223,7 +223,7 @@ func TestNewTimeSlotsHandler(t *testing.T) {
 		t,
 		expectedBody,
 		resp.Body.String(),
-		"New timeSlot expected",
+		"New time slot expected",
 	)
 }
 
@@ -257,7 +257,7 @@ func TestNewTimeSlotsHandlerMissingFields(t *testing.T) {
 
 	assert.Equal(
 		t,
-		"Missing field \"duration\" in timeSlot",
+		"Missing field \"duration\" in time_slot",
 		resp.Body.String(),
 		"Missing field error expected",
 	)

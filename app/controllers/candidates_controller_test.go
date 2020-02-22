@@ -466,7 +466,7 @@ func TestCandidateAvailabilityIndexHandler(t *testing.T) {
 		t,
 		expectedBody,
 		resp.Body.String(),
-		"List of timeSlots expected",
+		"List of time slots expected",
 	)
 }
 
