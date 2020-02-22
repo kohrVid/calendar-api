@@ -1,0 +1,37 @@
+get:
+  description: Get a list of all time slots in the database
+  operationId: "GET /time_slots"
+  responses:
+    200:
+      description: TimeSlots response
+      schema:
+        type: array
+        items:
+          $ref: "#/definitions/TimeSlot"
+    default:
+      description: Unexpected error
+      examples:
+        application/json: []
+post:
+  description: Creates a new time slot. Duplicates are not allowed
+  operationId: "POST /time_slots"
+  parameters:
+    - name: time_slots
+      in: body
+      description: TimeSlot to add to the database
+      required: true
+      schema:
+        $ref: "#/definitions/NewTimeSlot"
+  responses:
+    201:
+      description: Time slot response
+      schema:
+        $ref: "#/definitions/TimeSlot"
+    304:
+      description: Time slot already exists
+      examples:
+        text/html: TimeSlot already exists
+    default:
+      description: Unexpected error
+      schema:
+        $ref: "#/definitions/ErrorTimeSlot"

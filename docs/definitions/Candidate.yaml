@@ -1,11 +1,11 @@
 title: Candidate
 description: A candidate for an interview
 type: object
-allOf: 
+allOf:
   - $ref: '#/definitions/NewCandidate'
 required:
   - id
-properties: 
+properties:
   id:
     type: integer
     format: int64
