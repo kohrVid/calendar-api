@@ -345,6 +345,7 @@ func TestDeleteTimeSlotsHandler(t *testing.T) {
 }
 
 func TestDeleteTimeSlotsHandlerWhenTimeSlotDoesNotExist(t *testing.T) {
+	conf := config.LoadConfig()
 	req, err := http.NewRequest("DELETE", "/time_slots/1000", nil)
 
 	if err != nil {
@@ -373,4 +374,7 @@ func TestDeleteTimeSlotsHandlerWhenTimeSlotDoesNotExist(t *testing.T) {
 		resp.Body.String(),
 		"Empty hash expected",
 	)
+
+	dbHelpers.Clean(conf)
+	dbHelpers.Seed(conf)
 }

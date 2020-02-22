@@ -121,3 +121,35 @@ func DeleteCandidatesHandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, fmt.Sprintf("Candidate #%v deleted", id))
 	}
 }
+
+func CandidateAvailabilityIndexHandler(w http.ResponseWriter, r *http.Request) {
+	cid := strings.Split(r.URL.Path, "/")[2]
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	w.WriteHeader(http.StatusOK)
+	body := queries.ListCandidateTimeSlots(cid)
+
+	if err := json.NewEncoder(w).Encode(body); err != nil {
+		log.Fatal(err)
+	}
+}
+
+func ShowCandidateAvailabilityHandler(w http.ResponseWriter, r *http.Request) {
+	path := strings.Split(r.URL.Path, "/")
+	cid := path[2]
+	id := path[4]
+
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	body, err := queries.FindCandidateTimeSlot(cid, id)
+
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		if err := json.NewEncoder(w).Encode(&models.Empty{}); err != nil {
+			log.Fatal(err)
+		}
+	} else {
+		w.WriteHeader(http.StatusOK)
+		if err := json.NewEncoder(w).Encode(body); err != nil {
+			log.Fatal(err)
+		}
+	}
+}

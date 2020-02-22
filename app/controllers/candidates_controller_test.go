@@ -393,7 +393,127 @@ func TestDeleteCandidatesHandler(t *testing.T) {
 }
 
 func TestDeleteCandidatesHandlerWhenCandidateDoesNotExist(t *testing.T) {
+	conf := config.LoadConfig()
 	req, err := http.NewRequest("DELETE", "/candidates/1000", nil)
+
+	if err != nil {
+		t.Errorf(
+			"Test failed.\nGot:\n\t%v",
+			err.Error(),
+		)
+	}
+
+	resp := httptest.NewRecorder()
+	MockRouter().ServeHTTP(resp, req)
+	expectedBody := "{}\n"
+
+	assert.Equal(t, 404, resp.Code, "404 response expected")
+
+	assert.Equal(
+		t,
+		"application/json; charset=UTF-8",
+		resp.Header().Get("Content-Type"),
+		"JSON response expected",
+	)
+
+	assert.Equal(
+		t,
+		expectedBody,
+		resp.Body.String(),
+		"Empty hash expected",
+	)
+
+	dbHelpers.Clean(conf)
+	dbHelpers.Seed(conf)
+}
+
+func TestCandidateAvailabilityIndexHandler(t *testing.T) {
+	conf := config.LoadConfig()
+
+	req, err := http.NewRequest("GET", "/candidates/1/availability", nil)
+
+	if err != nil {
+		t.Errorf(
+			"Test failed.\nGot:\n\t%v",
+			err.Error(),
+		)
+	}
+
+	resp := httptest.NewRecorder()
+	MockRouter().ServeHTTP(resp, req)
+
+	timeSlot := config.ToMapList(
+		conf["data"].(map[string]interface{})["time_slots"],
+	)[0]
+
+	expectedBody := fmt.Sprintf(
+		`[{"id":1,"start_time":%v,"duration":%v}]
+`,
+		timeSlot["start_time"].(int),
+		timeSlot["duration"].(int),
+	)
+
+	assert.Equal(t, 200, resp.Code, "200 response expected")
+
+	assert.Equal(
+		t,
+		"application/json; charset=UTF-8",
+		resp.Header().Get("Content-Type"),
+		"JSON response expected",
+	)
+
+	assert.Equal(
+		t,
+		expectedBody,
+		resp.Body.String(),
+		"List of timeSlots expected",
+	)
+}
+
+func TestShowCandidateAvailabilityHandler(t *testing.T) {
+	req, err := http.NewRequest("GET", "/candidates/1/availability/1", nil)
+
+	if err != nil {
+		t.Errorf(
+			"Test failed.\nGot:\n\t%v",
+			err.Error(),
+		)
+	}
+
+	resp := httptest.NewRecorder()
+	MockRouter().ServeHTTP(resp, req)
+	conf := config.LoadConfig()
+
+	timeSlot := config.ToMapList(
+		conf["data"].(map[string]interface{})["time_slots"],
+	)[0]
+
+	expectedBody := fmt.Sprintf(
+		`{"id":1,"start_time":%v,"duration":%v}
+`,
+		timeSlot["start_time"].(int),
+		timeSlot["duration"].(int),
+	)
+
+	assert.Equal(t, 200, resp.Code, "200 response expected")
+
+	assert.Equal(
+		t,
+		"application/json; charset=UTF-8",
+		resp.Header().Get("Content-Type"),
+		"JSON response expected",
+	)
+
+	assert.Equal(
+		t,
+		expectedBody,
+		resp.Body.String(),
+		"JSON of candidate expected",
+	)
+}
+
+func TestShowCandidateAvailabilityHandlerWhenTimeslotDoesNotExist(t *testing.T) {
+	req, err := http.NewRequest("GET", "/candidates/1/availability/2", nil)
 
 	if err != nil {
 		t.Errorf(
@@ -423,27 +543,8 @@ func TestDeleteCandidatesHandlerWhenCandidateDoesNotExist(t *testing.T) {
 	)
 }
 
-func TestNewCandidateAvailabilityHandler(t *testing.T) {
-	conf := config.LoadConfig()
-
-	timeSlot := config.ToMapList(
-		conf["data"].(map[string]interface{})["time_slots"],
-	)[0]
-
-	data := []byte(
-		fmt.Sprintf(
-			`{"start_time":%v,"duration":%v}`,
-			timeSlot["start_time"].(int),
-			timeSlot["duration"].(int),
-		),
-	)
-
-	// StrictSlash(true) doesn't work in the test environment for some reason
-	req, err := http.NewRequest(
-		"POST",
-		"/candidates/1/availability/",
-		bytes.NewBuffer(data),
-	)
+func TestShowCandidateAvailabilityHandlerWhenTimeslotIsForDifferentCandidate(t *testing.T) {
+	req, err := http.NewRequest("GET", "/candidates/2/availability/1", nil)
 
 	if err != nil {
 		t.Errorf(
@@ -454,15 +555,9 @@ func TestNewCandidateAvailabilityHandler(t *testing.T) {
 
 	resp := httptest.NewRecorder()
 	MockRouter().ServeHTTP(resp, req)
+	expectedBody := "{}\n"
 
-	expectedBody := fmt.Sprintf(
-		`{"id":3,"start_time":%v,"duration":%v}
-`,
-		timeSlot["start_time"].(int),
-		timeSlot["duration"].(int),
-	)
-
-	assert.Equal(t, 201, resp.Code, "201 response expected")
+	assert.Equal(t, 404, resp.Code, "404 response expected")
 
 	assert.Equal(
 		t,
@@ -475,6 +570,6 @@ func TestNewCandidateAvailabilityHandler(t *testing.T) {
 		t,
 		expectedBody,
 		resp.Body.String(),
-		"New timeSlot expected",
+		"Empty hash expected",
 	)
 }
