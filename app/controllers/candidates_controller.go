@@ -153,3 +153,89 @@ func ShowCandidateAvailabilityHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 }
+
+func NewCandidateAvailabilityHandler(w http.ResponseWriter, r *http.Request) {
+	cid := strings.Split(r.URL.Path, "/")[2]
+
+	ts, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		fmt.Errorf("Error: %v", err)
+	}
+
+	timeSlot := new(models.TimeSlot)
+
+	err = json.Unmarshal(ts, timeSlot)
+	if err != nil {
+		fmt.Errorf("Error: %v", err)
+	}
+
+	_, err = commands.CreateCandidateTimeSlot(cid, timeSlot)
+	if err != nil {
+		w.WriteHeader(http.StatusNotModified)
+		body := dbHelpers.PgErrorHandler(err, "time_slots")
+		fmt.Fprintf(w, body)
+	} else {
+
+		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+		w.WriteHeader(http.StatusCreated)
+		json.NewEncoder(w).Encode(timeSlot)
+	}
+}
+
+func EditCandidateAvailabilityHandler(w http.ResponseWriter, r *http.Request) {
+	path := strings.Split(r.URL.Path, "/")
+	cid := path[2]
+	id := path[4]
+
+	c, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		fmt.Errorf("Error: %v", err)
+	}
+
+	timeSlot, err := queries.FindCandidateTimeSlot(cid, id)
+	if err != nil {
+		fmt.Errorf("Error: %v", err)
+	}
+
+	params := new(models.TimeSlot)
+
+	err = json.Unmarshal(c, params)
+	if err != nil {
+		fmt.Errorf("Error: %v", err)
+	}
+
+	pa := *params
+
+	commands.UpdateTimeSlot(&timeSlot, pa)
+
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	w.WriteHeader(http.StatusOK)
+	if err := json.NewEncoder(w).Encode(timeSlot); err != nil {
+		log.Fatal(err)
+	}
+}
+
+func DeleteCandidateAvailabilityHandler(w http.ResponseWriter, r *http.Request) {
+	path := strings.Split(r.URL.Path, "/")
+	cid := path[2]
+	id := path[4]
+	timeSlot, err := queries.FindCandidateTimeSlot(cid, id)
+
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+		if err := json.NewEncoder(w).Encode(&models.Empty{}); err != nil {
+			log.Fatal(err)
+		}
+	} else {
+		err = commands.DeleteCandidateTimeSlot(cid, &timeSlot)
+
+		if err != nil {
+			fmt.Errorf("Error: %v", err)
+			log.Printf("Error: %v\n", err)
+		}
+
+		w.WriteHeader(http.StatusOK)
+		fmt.Fprintf(w, fmt.Sprintf("TimeSlot #%v deleted", id))
+	}
+}

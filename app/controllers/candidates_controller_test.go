@@ -573,3 +573,243 @@ func TestShowCandidateAvailabilityHandlerWhenTimeslotIsForDifferentCandidate(t *
 		"Empty hash expected",
 	)
 }
+
+func TestNewCandidateAvailabilityHandler(t *testing.T) {
+	timeSlot := models.TimeSlot{
+		StartTime: 13,
+		Duration:  3,
+	}
+
+	data := []byte(
+		fmt.Sprintf(
+			`{"start_time":%v,"duration":%v}`,
+			timeSlot.StartTime,
+			timeSlot.Duration,
+		),
+	)
+
+	req, err := http.NewRequest("POST", "/candidates/2/availability", bytes.NewBuffer(data))
+
+	if err != nil {
+		t.Errorf(
+			"Test failed.\nGot:\n\t%v",
+			err.Error(),
+		)
+	}
+
+	resp := httptest.NewRecorder()
+	MockRouter().ServeHTTP(resp, req)
+
+	expectedBody := fmt.Sprintf(
+		`{"id":3,"start_time":%v,"duration":%v}
+`,
+		timeSlot.StartTime,
+		timeSlot.Duration,
+	)
+
+	assert.Equal(t, 201, resp.Code, "201 response expected")
+
+	assert.Equal(
+		t,
+		"application/json; charset=UTF-8",
+		resp.Header().Get("Content-Type"),
+		"JSON response expected",
+	)
+
+	assert.Equal(
+		t,
+		expectedBody,
+		resp.Body.String(),
+		"New time slot expected",
+	)
+}
+
+func TestNewCandidateAvailabilityHandlerMissingFields(t *testing.T) {
+	conf := config.LoadConfig()
+
+	timeSlot := config.ToMapList(
+		conf["data"].(map[string]interface{})["time_slots"],
+	)[0]
+
+	data := []byte(
+		fmt.Sprintf(
+			`{"start_time":%v}`,
+			timeSlot["start_time"].(int),
+		),
+	)
+
+	req, err := http.NewRequest("POST", "/candidates/2/availability", bytes.NewBuffer(data))
+
+	if err != nil {
+		t.Errorf(
+			"Test failed.\nGot:\n\t%v",
+			err.Error(),
+		)
+	}
+
+	resp := httptest.NewRecorder()
+	MockRouter().ServeHTTP(resp, req)
+
+	assert.Equal(t, 304, resp.Code, "304 response expected")
+
+	assert.Equal(
+		t,
+		"Missing field \"duration\" in time_slot",
+		resp.Body.String(),
+		"Missing field error expected",
+	)
+}
+
+func TestEditCandidatesAvailabilityHandler(t *testing.T) {
+	conf := config.LoadConfig()
+
+	originalTimeSlot := config.ToMapList(
+		conf["data"].(map[string]interface{})["time_slots"],
+	)[0]
+
+	timeSlot := models.TimeSlot{
+		Id:       1,
+		Duration: 4,
+	}
+
+	data := []byte(
+		fmt.Sprintf(
+			`{"start_time":%v,"duration":%v}`,
+			originalTimeSlot["start_time"].(int),
+			timeSlot.Duration,
+		),
+	)
+
+	req, err := http.NewRequest(
+		"PATCH",
+		"/candidates/1/availability/1",
+		bytes.NewBuffer(data),
+	)
+
+	if err != nil {
+		t.Errorf(
+			"Test failed.\nGot:\n\t%v",
+			err.Error(),
+		)
+	}
+
+	resp := httptest.NewRecorder()
+	MockRouter().ServeHTTP(resp, req)
+
+	expectedBody := fmt.Sprintf(
+		`{"id":1,"start_time":%v,"duration":%v}
+`,
+		originalTimeSlot["start_time"].(int),
+		timeSlot.Duration,
+	)
+
+	assert.Equal(t, 200, resp.Code, "200 response expected")
+
+	assert.Equal(
+		t,
+		"application/json; charset=UTF-8",
+		resp.Header().Get("Content-Type"),
+		"JSON response expected",
+	)
+
+	assert.Equal(
+		t,
+		expectedBody,
+		resp.Body.String(),
+		"Updated time slot expected",
+	)
+}
+
+func TestDeleteCandidatesAvailabilityHandler(t *testing.T) {
+	req, err := http.NewRequest("DELETE", "/candidates/1/availability/1", nil)
+
+	if err != nil {
+		t.Errorf(
+			"Test failed.\nGot:\n\t%v",
+			err.Error(),
+		)
+	}
+
+	resp := httptest.NewRecorder()
+	MockRouter().ServeHTTP(resp, req)
+
+	expectedBody := fmt.Sprintf("TimeSlot #%v deleted", 1)
+
+	assert.Equal(t, 200, resp.Code, "200 response expected")
+
+	assert.Equal(
+		t,
+		expectedBody,
+		resp.Body.String(),
+		"Deletion message expected",
+	)
+}
+
+func TestDeleteCandidatesAvailabilityHandlerWhenCandidateDoesNotExist(t *testing.T) {
+	conf := config.LoadConfig()
+	req, err := http.NewRequest("DELETE", "/candidates/1000/availability/1", nil)
+
+	if err != nil {
+		t.Errorf(
+			"Test failed.\nGot:\n\t%v",
+			err.Error(),
+		)
+	}
+
+	resp := httptest.NewRecorder()
+	MockRouter().ServeHTTP(resp, req)
+	expectedBody := "{}\n"
+
+	assert.Equal(t, 404, resp.Code, "404 response expected")
+
+	assert.Equal(
+		t,
+		"application/json; charset=UTF-8",
+		resp.Header().Get("Content-Type"),
+		"JSON response expected",
+	)
+
+	assert.Equal(
+		t,
+		expectedBody,
+		resp.Body.String(),
+		"Empty hash expected",
+	)
+
+	dbHelpers.Clean(conf)
+	dbHelpers.Seed(conf)
+}
+func TestDeleteCandidatesAvailabilityHandlerWhenTimeSlotDoesNotExist(t *testing.T) {
+	conf := config.LoadConfig()
+	req, err := http.NewRequest("DELETE", "/candidates/1/availability/1000", nil)
+
+	if err != nil {
+		t.Errorf(
+			"Test failed.\nGot:\n\t%v",
+			err.Error(),
+		)
+	}
+
+	resp := httptest.NewRecorder()
+	MockRouter().ServeHTTP(resp, req)
+	expectedBody := "{}\n"
+
+	assert.Equal(t, 404, resp.Code, "404 response expected")
+
+	assert.Equal(
+		t,
+		"application/json; charset=UTF-8",
+		resp.Header().Get("Content-Type"),
+		"JSON response expected",
+	)
+
+	assert.Equal(
+		t,
+		expectedBody,
+		resp.Body.String(),
+		"Empty hash expected",
+	)
+
+	dbHelpers.Clean(conf)
+	dbHelpers.Seed(conf)
+}
