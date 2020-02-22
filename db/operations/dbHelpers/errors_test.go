@@ -7,8 +7,15 @@ import (
 	"testing"
 
 	pluralise "github.com/gertd/go-pluralize"
+	"github.com/kohrVid/calendar-api/config"
 	"github.com/stretchr/testify/assert"
 )
+
+func init() {
+	conf := config.LoadConfig()
+	dbHelpers.Clean(conf)
+	dbHelpers.Seed(conf)
+}
 
 func TestPgErrorHandlerNil(t *testing.T) {
 	resource := "candidates"

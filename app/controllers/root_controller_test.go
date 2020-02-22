@@ -5,8 +5,16 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/kohrVid/calendar-api/config"
+	"github.com/kohrVid/calendar-api/db/operations/dbHelpers"
 	"github.com/stretchr/testify/assert"
 )
+
+func init() {
+	conf := config.LoadConfig()
+	dbHelpers.Clean(conf)
+	dbHelpers.Seed(conf)
+}
 
 func TestRootHandler(t *testing.T) {
 	req, err := http.NewRequest("GET", "/", nil)

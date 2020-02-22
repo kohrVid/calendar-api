@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
-	"os"
 	"testing"
 
 	"github.com/kohrVid/calendar-api/app/models"
@@ -14,12 +13,10 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestMain(m *testing.M) {
+func init() {
 	conf := config.LoadConfig()
 	dbHelpers.Clean(conf)
 	dbHelpers.Seed(conf)
-	ret := m.Run()
-	os.Exit(ret)
 }
 
 func TestCandidatesIndexHandler(t *testing.T) {

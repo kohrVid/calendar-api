@@ -13,6 +13,12 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func init() {
+	conf := config.LoadConfig()
+	dbHelpers.Clean(conf)
+	dbHelpers.Seed(conf)
+}
+
 func TestTimeSlotsIndexHandler(t *testing.T) {
 	req, err := http.NewRequest("GET", "/time_slots", nil)
 
