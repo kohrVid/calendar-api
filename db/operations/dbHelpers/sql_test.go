@@ -7,6 +7,9 @@ import (
 	"testing"
 
 	"github.com/fatih/structs"
+	"github.com/kohrVid/calendar-api/app/models"
+	"github.com/kohrVid/calendar-api/config"
+	"github.com/kohrVid/calendar-api/db"
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/yaml.v2"
 )
@@ -25,6 +28,35 @@ var cat Cat = Cat{
 	Colour: "Tabby and white",
 }
 
+func init() {
+	conf := config.LoadConfig()
+	Clean(conf)
+	Seed(conf)
+}
+
+func TestTruncation(t *testing.T) {
+	conf := config.LoadConfig()
+	db := db.DBConnect(conf)
+	defer db.Close()
+
+	candidate := models.Candidate{}
+	_, err := db.Query(&candidate, "SELECT * FROM candidates ORDER BY id LIMIT 1")
+
+	if err != nil {
+		log.Println(err)
+	}
+
+	timeSlot := models.TimeSlot{}
+	_, err = db.Query(&timeSlot, "SELECT * FROM time_slots ORDER BY id LIMIT 1")
+
+	if err != nil {
+		log.Println(err)
+	}
+
+	assert.Equal(t, 1, candidate.Id, "expected to restart identity column")
+	assert.Equal(t, 1, timeSlot.Id, "expected to restart identity column")
+}
+
 func TestInsertConfSql(t *testing.T) {
 	var conf map[string]interface{}
 
@@ -41,7 +73,7 @@ data:
 	)
 
 	if err := yaml.Unmarshal([]byte(dat), &conf); err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 
 	assert.Regexp(

@@ -17,19 +17,23 @@ func Clean(conf map[string]interface{}) {
 	truncateTables := fmt.Sprintf(`
 CREATE OR REPLACE FUNCTION truncate_tables(username IN VARCHAR) RETURNS void AS $$
 DECLARE
-    statements CURSOR FOR
-        SELECT tablename FROM pg_tables
-        WHERE tableowner = username
-	  AND schemaname = 'public'
-	  AND tablename != 'gopg_migrations';
+  statements CURSOR FOR
+      SELECT
+	tablename
+      FROM pg_tables
+      WHERE tableowner = username
+	AND schemaname = 'public'
+	AND tablename != 'gopg_migrations';
+
 BEGIN
-    FOR stmt IN statements LOOP
-        EXECUTE 'TRUNCATE TABLE ' || quote_ident(stmt.tablename) || ' RESTART IDENTITY CASCADE;';
-    END LOOP;
+  FOR stmt IN statements LOOP
+    EXECUTE 'TRUNCATE TABLE ' || quote_ident(stmt.tablename) ||
+    ' CASCADE; ALTER TABLE ' || quote_ident(stmt.tablename) ||
+      ' ALTER COLUMN id RESTART WITH 1;';
+  END LOOP;
 END;
 $$ LANGUAGE plpgsql;
 		`)
-
 	cleanDB := fmt.Sprintf(
 		"%v SELECT truncate_tables('%v');",
 		truncateTables,
