@@ -1,5 +1,5 @@
-title: Edit Candidate
-description: Edit a candidate's attributes for an interview
+title: Edit Interviewer
+description: Edit a potential interviewer's attributes
 type: object
 properties:
   first_name:

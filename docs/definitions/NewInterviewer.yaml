@@ -1,6 +1,10 @@
-title: Edit Candidate
-description: Edit a candidate's attributes for an interview
+title: New Interviewer
+description: A new interviewer
 type: object
+required:
+  - first_name
+  - last_name
+  - email
 properties:
   first_name:
     type: string

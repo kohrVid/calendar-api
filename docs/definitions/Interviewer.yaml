@@ -1,0 +1,11 @@
+title: Interviewer
+description: A potential interviewer
+type: object
+allOf:
+  - $ref: '#/definitions/NewInterviewer'
+required:
+  - id
+properties:
+  id:
+    type: integer
+    format: int64

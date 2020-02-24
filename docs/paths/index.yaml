@@ -10,6 +10,14 @@
   $ref: ./candidate_availability.yaml
 /candidates/:candidate_id/availability/:id:
   $ref: ./candidate_availability_id.yaml
+/interviewers:
+  $ref: ./interviewers.yaml
+/interviewers/:id:
+  $ref: ./interviewers_id.yaml
+/interviewers/:interviewer_id/availability:
+  $ref: ./interviewer_availability.yaml
+/interviewers/:interviewer_id/availability/:id:
+  $ref: ./interviewer_availability_id.yaml
 /time_slots:
   $ref: ./time_slots.yaml
 /time_slots/:id:
