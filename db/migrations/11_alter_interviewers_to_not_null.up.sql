@@ -1,0 +1,4 @@
+ALTER TABLE interviewers
+  ALTER COLUMN first_name SET NOT NULL,
+  ALTER COLUMN last_name SET NOT NULL,
+  ALTER COLUMN email SET NOT NULL;

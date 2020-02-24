@@ -16,69 +16,69 @@ func init() {
 	dbHelpers.Seed(conf)
 }
 
-func TestListCandidates(t *testing.T) {
+func TestListInterviewers(t *testing.T) {
 	conf := config.LoadConfig()
 
 	users := config.ToMapList(
-		conf["data"].(map[string]interface{})["candidates"],
+		conf["data"].(map[string]interface{})["interviewers"],
 	)
 
-	candidate1 := models.Candidate{
+	interviewer1 := models.Interviewer{
 		Id:        1,
 		FirstName: users[0]["first_name"].(string),
 		LastName:  users[0]["last_name"].(string),
 		Email:     users[0]["email"].(string),
 	}
 
-	candidate2 := models.Candidate{
+	interviewer2 := models.Interviewer{
 		Id:        2,
 		FirstName: users[1]["first_name"].(string),
 		LastName:  users[1]["last_name"].(string),
 		Email:     users[1]["email"].(string),
 	}
 
-	expected := []models.Candidate{candidate1, candidate2}
-	res := ListCandidates()
+	expected := []models.Interviewer{interviewer1, interviewer2}
+	res := ListInterviewers()
 
-	assert.Equal(t, expected, res, "List of candidates expected")
+	assert.Equal(t, expected, res, "List of interviewers expected")
 }
 
-func TestListCandidatesEmptyDB(t *testing.T) {
+func TestListInterviewersEmptyDB(t *testing.T) {
 	conf := config.LoadConfig()
 	dbHelpers.Clean(conf)
-	res := ListCandidates()
-	expected := []models.Candidate{}
+	res := ListInterviewers()
+	expected := []models.Interviewer{}
 
 	assert.Equal(t, expected, res, "Empty list expected")
 	dbHelpers.Seed(conf)
 }
 
-func TestFindCandidate(t *testing.T) {
+func TestFindInterviewer(t *testing.T) {
 	conf := config.LoadConfig()
 
 	user := config.ToMapList(
-		conf["data"].(map[string]interface{})["candidates"],
+		conf["data"].(map[string]interface{})["interviewers"],
 	)[0]
 
-	res, err := FindCandidate("1")
+	res, err := FindInterviewer("1")
 
 	if err != nil {
 		log.Println(err)
 	}
 
-	expected := models.Candidate{
+	expected := models.Interviewer{
 		Id:        1,
 		FirstName: user["first_name"].(string),
 		LastName:  user["last_name"].(string),
 		Email:     user["email"].(string),
 	}
 
-	assert.Equal(t, expected, res, "first candidate expected")
+	assert.Equal(t, expected, res, "first interviewer expected")
 	assert.Equal(t, nil, err, "No error expected")
 }
 
-func TestFindCandidateThatDoesNotExist(t *testing.T) {
-	res, err := FindCandidate("10000")
+func TestFindInterviewerThatDoesNotExist(t *testing.T) {
+	res, err := FindInterviewer("10000")
 
 	assert.Equal(
 		t,
@@ -87,60 +87,60 @@ func TestFindCandidateThatDoesNotExist(t *testing.T) {
 		"Error expected",
 	)
 
-	assert.Equal(t, "", res.FirstName, "No candidate details expected")
-	assert.Equal(t, "", res.LastName, "No candidate details expected")
-	assert.Equal(t, "", res.Email, "No candidate details expected")
+	assert.Equal(t, "", res.FirstName, "No interviewer details expected")
+	assert.Equal(t, "", res.LastName, "No interviewer details expected")
+	assert.Equal(t, "", res.Email, "No interviewer details expected")
 }
 
-func TestListCandidateTimeSlots(t *testing.T) {
+func TestListInterviewerTimeSlots(t *testing.T) {
 	conf := config.LoadConfig()
 	ts := config.ToMapList(
 		conf["data"].(map[string]interface{})["time_slots"],
-	)[0]
+	)[1]
 
-	res := ListCandidateTimeSlots("1")
+	res := ListInterviewerTimeSlots("1")
 
 	timeSlot := models.TimeSlot{
-		Id:        1,
+		Id:        2,
 		StartTime: ts["start_time"].(int),
 		Duration:  ts["duration"].(int),
 	}
 
 	expected := []models.TimeSlot{timeSlot}
 
-	assert.Equal(t, expected, res, "List of candidates expected")
+	assert.Equal(t, expected, res, "List of interviewers expected")
 }
 
-func TestListCandidateTimeSlotsWhenEmpty(t *testing.T) {
-	res := ListCandidateTimeSlots("2")
+func TestListInterviewerTimeSlotsWhenEmpty(t *testing.T) {
+	res := ListInterviewerTimeSlots("2")
 	expected := []models.TimeSlot{}
 
 	assert.Equal(t, expected, res, "Empty list expected")
 }
 
-func TestFindCandidateTimeSlot(t *testing.T) {
+func TestFindInterviewerTimeSlot(t *testing.T) {
 	conf := config.LoadConfig()
 	ts := config.ToMapList(
 		conf["data"].(map[string]interface{})["time_slots"],
-	)[0]
+	)[1]
 
-	res, err := FindCandidateTimeSlot("1", "1")
+	res, err := FindInterviewerTimeSlot("1", "2")
 
 	if err != nil {
 		log.Println(err)
 	}
 
 	expected := models.TimeSlot{
-		Id:        1,
+		Id:        2,
 		StartTime: ts["start_time"].(int),
 		Duration:  ts["duration"].(int),
 	}
 
-	assert.Equal(t, expected, res, "List of candidates expected")
+	assert.Equal(t, expected, res, "List of interviewers expected")
 }
 
-func TestFindCandidateTimeSlotDoesNotExist(t *testing.T) {
-	res, err := FindCandidateTimeSlot("1", "2")
+func TestFindInterviewerTimeSlotDoesNotExist(t *testing.T) {
+	res, err := FindInterviewerTimeSlot("1", "3")
 
 	if err != nil {
 		log.Println(err)
@@ -157,8 +157,8 @@ func TestFindCandidateTimeSlotDoesNotExist(t *testing.T) {
 	assert.Equal(t, 0, res.Duration, "No time slot details expected")
 }
 
-func TestFindCandidateTimeSlotIsForAnotherCandidate(t *testing.T) {
-	res, err := FindCandidateTimeSlot("2", "1")
+func TestFindInterviewerTimeSlotIsForAnotherInterviewer(t *testing.T) {
+	res, err := FindInterviewerTimeSlot("2", "2")
 
 	assert.Equal(
 		t,

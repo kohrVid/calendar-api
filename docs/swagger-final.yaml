@@ -299,6 +299,267 @@ paths:
           description: Unexpected error
           schema:
             $ref: '#/definitions/ErrorTimeSlot'
+  /interviewers:
+    get:
+      description: Get a list of all interviewers in the database
+      operationId: GET /interviewers
+      responses:
+        '200':
+          description: Interviewers response
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Interviewer'
+        default:
+          description: Unexpected error
+          examples:
+            application/json: []
+    post:
+      description: Creates a new interviewer. Duplicates are not allowed
+      operationId: POST /interviewers
+      parameters:
+        - name: interviewers
+          in: body
+          description: Interviewer to add to the database
+          required: true
+          schema:
+            $ref: '#/definitions/NewInterviewer'
+      responses:
+        '201':
+          description: Interviewer response
+          schema:
+            $ref: '#/definitions/Interviewer'
+        '304':
+          description: Interviewer already exists
+          examples:
+            text/html: Interviewer already exists
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/ErrorInterviewer'
+  '/interviewers/:id':
+    get:
+      description: returns a interviewer based on the ID supplied
+      operationId: 'GET /interviewers/:id'
+      parameters:
+        - name: id
+          in: path
+          description: ID of interviewer to find
+          required: true
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Interviewer response
+          schema:
+            $ref: '#/definitions/Interviewer'
+        '404':
+          description: Interviewer not found
+          examples:
+            application/json: {}
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/ErrorInterviewer'
+    patch:
+      description: Updates a interviewer based on the ID and parameters supplied
+      operationId: 'PATCH /interviewers/:id'
+      parameters:
+        - name: id
+          in: path
+          description: ID of interviewer to edit
+          required: true
+          type: integer
+          format: int64
+        - name: interviewers
+          in: body
+          description: Interviewer parameters to update
+          schema:
+            $ref: '#/definitions/EditInterviewer'
+      responses:
+        '200':
+          description: Interviewer response
+          schema:
+            $ref: '#/definitions/Interviewer'
+        '404':
+          description: Interviewer not found
+          examples:
+            application/json: {}
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/ErrorInterviewer'
+    delete:
+      description: Deletes a single interviewer based on the ID supplied
+      operationId: 'DELETE /interviewers/:id'
+      parameters:
+        - name: id
+          in: path
+          description: ID of interviewer to delete
+          required: true
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Interviewer deleted
+          examples:
+            text/html: 'Interviewer #1 deleted'
+        '404':
+          description: Interviewer not found
+          examples:
+            application/json: {}
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/ErrorInterviewer'
+  '/interviewers/:interviewer_id/availability':
+    get:
+      description: Get a list of all interviewers in the database
+      operationId: 'GET /interviewers/:interviewer_id/availability'
+      parameters:
+        - name: interviewer_id
+          in: path
+          description: ID of the interviewer in question
+          required: true
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Interviewer availability response
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/TimeSlot'
+        default:
+          description: Unexpected error
+          examples:
+            application/json: []
+    post:
+      description: >-
+        Creates a new time slot for a given interviewer. Duplicates are not
+        allowed
+      operationId: 'POST /interviewers/:interviewer_id/availability'
+      parameters:
+        - name: interviewer_id
+          in: path
+          description: ID of the interviewer in question
+          required: true
+          type: integer
+          format: int64
+        - name: availability
+          in: body
+          description: Time slot to add to the database
+          required: true
+          schema:
+            $ref: '#/definitions/NewTimeSlot'
+      responses:
+        '201':
+          description: Interviewer availability response
+          schema:
+            $ref: '#/definitions/TimeSlot'
+        '304':
+          description: Time slot already exists
+          examples:
+            text/html: Time slot already exists
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/ErrorTimeSlot'
+  '/interviewers/:interviewer_id/availability/:id':
+    get:
+      description: returns a timeslot for a given interviewer based on the IDs supplied
+      operationId: 'GET /interviewers/:interviewer_id/availability/:id'
+      parameters:
+        - name: interviewer_id
+          in: path
+          description: ID of the interviewer in question
+          required: true
+          type: integer
+          format: int64
+        - name: id
+          in: path
+          description: ID of the time slot in question
+          required: true
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Interviewer availability response
+          schema:
+            $ref: '#/definitions/TimeSlot'
+        '404':
+          description: Time slot not found
+          examples:
+            application/json: {}
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/ErrorTimeSlot'
+    patch:
+      description: Updates a interviewer based on the ID and parameters supplied
+      operationId: 'PATCH /interviewers/:interviewer_id/availability/:id'
+      parameters:
+        - name: interviewer_id
+          in: path
+          description: ID of the interviewer in question
+          required: true
+          type: integer
+          format: int64
+        - name: id
+          in: path
+          description: ID of the time slot in question
+          required: true
+          type: integer
+          format: int64
+        - name: time_slot
+          in: body
+          description: Time slot parameters to update
+          schema:
+            $ref: '#/definitions/EditTimeSlot'
+      responses:
+        '200':
+          description: Interviewer availability response
+          schema:
+            $ref: '#/definitions/TimeSlot'
+        '404':
+          description: Time slot not found
+          examples:
+            application/json: {}
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/ErrorTimeSlot'
+    delete:
+      description: >-
+        Deletes a single time slot based on the interviewer ID and time slot ID
+        provided
+      operationId: 'DELETE /interviewers/:interviewer_id/availability/:id'
+      parameters:
+        - name: interviewer_id
+          in: path
+          description: ID of the interviewer in question
+          required: true
+          type: integer
+          format: int64
+        - name: id
+          in: path
+          description: ID of the time slot to delete
+          required: true
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Time slot deleted
+          examples:
+            text/html: 'TimeSlot #1 deleted'
+        '404':
+          description: Time slot not found
+          examples:
+            application/json: {}
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/ErrorTimeSlot'
   /time_slots:
     get:
       description: Get a list of all time slots in the database
@@ -442,7 +703,7 @@ definitions:
         type: string
   EditCandidate:
     title: Edit Candidate
-    description: A edit a candidate's attributes for an interview
+    description: Edit a candidate's attributes for an interview
     type: object
     properties:
       first_name:
@@ -453,6 +714,59 @@ definitions:
         type: string
   ErrorCandidate:
     title: ErrorCandidate
+    description: The object returned in the event of an error
+    type: object
+    required:
+      - first_name
+      - last_name
+      - email
+    properties:
+      first_name:
+        type: string
+      last_name:
+        type: string
+      email:
+        type: string
+  Interviewer:
+    title: Interviewer
+    description: A potential interviewer
+    type: object
+    allOf:
+      - $ref: '#/definitions/NewInterviewer'
+    required:
+      - id
+    properties:
+      id:
+        type: integer
+        format: int64
+  NewInterviewer:
+    title: New Interviewer
+    description: A new interviewer
+    type: object
+    required:
+      - first_name
+      - last_name
+      - email
+    properties:
+      first_name:
+        type: string
+      last_name:
+        type: string
+      email:
+        type: string
+  EditInterviewer:
+    title: Edit Interviewer
+    description: Edit a potential interviewer's attributes
+    type: object
+    properties:
+      first_name:
+        type: string
+      last_name:
+        type: string
+      email:
+        type: string
+  ErrorInterviewer:
+    title: ErrorInterviewer
     description: The object returned in the event of an error
     type: object
     required:

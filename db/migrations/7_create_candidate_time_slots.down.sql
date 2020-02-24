@@ -1,1 +1,3 @@
+DROP TRIGGER update_candidate_time_slots_updated_at on candidate_time_slots;
+
 DROP TABLE candidate_time_slots;

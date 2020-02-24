@@ -1,0 +1,3 @@
+DROP TRIGGER update_interviewer_time_slots_updated_at on interviewer_time_slots;
+
+DROP TABLE interviewer_time_slots;

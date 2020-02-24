@@ -1,0 +1,50 @@
+get:
+  description: Get a list of all interviewers in the database
+  operationId: "GET /interviewers/:interviewer_id/availability"
+  parameters:
+    - name: interviewer_id
+      in: path
+      description: ID of the interviewer in question
+      required: true
+      type: integer
+      format: int64
+  responses:
+    200:
+      description: Interviewer availability response
+      schema:
+        type: array
+        items:
+          $ref: "#/definitions/TimeSlot"
+    default:
+      description: Unexpected error
+      examples:
+        application/json: []
+post:
+  description: Creates a new time slot for a given interviewer. Duplicates are not allowed
+  operationId: "POST /interviewers/:interviewer_id/availability"
+  parameters:
+    - name: interviewer_id
+      in: path
+      description: ID of the interviewer in question
+      required: true
+      type: integer
+      format: int64
+    - name: availability
+      in: body
+      description: Time slot to add to the database
+      required: true
+      schema:
+        $ref: "#/definitions/NewTimeSlot"
+  responses:
+    201:
+      description: Interviewer availability response
+      schema:
+        $ref: "#/definitions/TimeSlot"
+    304:
+      description: Time slot already exists
+      examples:
+        text/html: Time slot already exists
+    default:
+      description: Unexpected error
+      schema:
+        $ref: "#/definitions/ErrorTimeSlot"

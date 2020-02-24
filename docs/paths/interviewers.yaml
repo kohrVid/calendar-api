@@ -1,0 +1,37 @@
+get:
+  description: Get a list of all interviewers in the database
+  operationId: "GET /interviewers"
+  responses:
+    200:
+      description: Interviewers response
+      schema:
+        type: array
+        items:
+          $ref: "#/definitions/Interviewer"
+    default:
+      description: Unexpected error
+      examples:
+        application/json: []
+post:
+  description: Creates a new interviewer. Duplicates are not allowed
+  operationId: "POST /interviewers"
+  parameters:
+    - name: interviewers
+      in: body
+      description: Interviewer to add to the database
+      required: true
+      schema:
+        $ref: "#/definitions/NewInterviewer"
+  responses:
+    201:
+      description: Interviewer response
+      schema:
+        $ref: "#/definitions/Interviewer"
+    304:
+      description: Interviewer already exists
+      examples:
+        text/html: Interviewer already exists
+    default:
+      description: Unexpected error
+      schema:
+        $ref: "#/definitions/ErrorInterviewer"

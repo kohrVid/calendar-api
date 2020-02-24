@@ -6,6 +6,14 @@ EditCandidate:
   $ref: ./EditCandidate.yaml
 ErrorCandidate:
   $ref: ./ErrorCandidate.yaml
+Interviewer:
+  $ref: ./Interviewer.yaml
+NewInterviewer:
+  $ref: ./NewInterviewer.yaml
+EditInterviewer:
+  $ref: ./EditInterviewer.yaml
+ErrorInterviewer:
+  $ref: ./ErrorInterviewer.yaml
 TimeSlot:
   $ref: ./TimeSlot.yaml
 NewTimeSlot:
