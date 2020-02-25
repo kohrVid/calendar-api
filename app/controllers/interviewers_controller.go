@@ -175,7 +175,6 @@ func NewInterviewerAvailabilityHandler(w http.ResponseWriter, r *http.Request) {
 		body := dbHelpers.PgErrorHandler(err, "time_slots")
 		fmt.Fprintf(w, body)
 	} else {
-
 		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 		w.WriteHeader(http.StatusCreated)
 		json.NewEncoder(w).Encode(timeSlot)
@@ -205,11 +204,10 @@ func EditInterviewerAvailabilityHandler(w http.ResponseWriter, r *http.Request) 
 	}
 
 	pa := *params
-
 	commands.UpdateTimeSlot(&timeSlot, pa)
-
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
+
 	if err := json.NewEncoder(w).Encode(timeSlot); err != nil {
 		log.Fatal(err)
 	}

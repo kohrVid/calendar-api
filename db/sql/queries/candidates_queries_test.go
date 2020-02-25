@@ -102,6 +102,7 @@ func TestListCandidateTimeSlots(t *testing.T) {
 
 	timeSlot := models.TimeSlot{
 		Id:        1,
+		Date:      ts["date"].(string),
 		StartTime: ts["start_time"].(int),
 		Duration:  ts["duration"].(int),
 	}
@@ -132,6 +133,7 @@ func TestFindCandidateTimeSlot(t *testing.T) {
 
 	expected := models.TimeSlot{
 		Id:        1,
+		Date:      ts["date"].(string),
 		StartTime: ts["start_time"].(int),
 		Duration:  ts["duration"].(int),
 	}

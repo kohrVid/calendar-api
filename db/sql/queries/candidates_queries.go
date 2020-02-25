@@ -54,6 +54,7 @@ func ListCandidateTimeSlots(cid string) []models.TimeSlot {
 		`
 	  SELECT
 	      ts.id,
+	      ts.date,
 	      ts.start_time,
 	      ts.duration
 	    FROM time_slots ts
@@ -82,6 +83,7 @@ func FindCandidateTimeSlot(cid string, id string) (models.TimeSlot, error) {
 		`
 	  SELECT
 	      ts.id,
+	      ts.date,
 	      ts.start_time,
 	      ts.duration
 	    FROM time_slots ts

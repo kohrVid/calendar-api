@@ -447,8 +447,9 @@ func TestCandidateAvailabilityIndexHandler(t *testing.T) {
 	)[0]
 
 	expectedBody := fmt.Sprintf(
-		`[{"id":1,"start_time":%v,"duration":%v}]
+		`[{"id":1,"date":"%v","start_time":%v,"duration":%v}]
 `,
+		timeSlot["date"].(string),
 		timeSlot["start_time"].(int),
 		timeSlot["duration"].(int),
 	)
@@ -489,8 +490,9 @@ func TestShowCandidateAvailabilityHandler(t *testing.T) {
 	)[0]
 
 	expectedBody := fmt.Sprintf(
-		`{"id":1,"start_time":%v,"duration":%v}
+		`{"id":1,"date":"%v","start_time":%v,"duration":%v}
 `,
+		timeSlot["date"].(string),
 		timeSlot["start_time"].(int),
 		timeSlot["duration"].(int),
 	)
@@ -576,13 +578,15 @@ func TestShowCandidateAvailabilityHandlerWhenTimeslotIsForDifferentCandidate(t *
 
 func TestNewCandidateAvailabilityHandler(t *testing.T) {
 	timeSlot := models.TimeSlot{
+		Date:      "2020-02-25",
 		StartTime: 13,
 		Duration:  3,
 	}
 
 	data := []byte(
 		fmt.Sprintf(
-			`{"start_time":%v,"duration":%v}`,
+			`{"date":"%v","start_time":%v,"duration":%v}`,
+			timeSlot.Date,
 			timeSlot.StartTime,
 			timeSlot.Duration,
 		),
@@ -601,8 +605,9 @@ func TestNewCandidateAvailabilityHandler(t *testing.T) {
 	MockRouter().ServeHTTP(resp, req)
 
 	expectedBody := fmt.Sprintf(
-		`{"id":3,"start_time":%v,"duration":%v}
+		`{"id":3,"date":"%v","start_time":%v,"duration":%v}
 `,
+		timeSlot.Date,
 		timeSlot.StartTime,
 		timeSlot.Duration,
 	)
@@ -697,8 +702,9 @@ func TestEditCandidatesAvailabilityHandler(t *testing.T) {
 	MockRouter().ServeHTTP(resp, req)
 
 	expectedBody := fmt.Sprintf(
-		`{"id":1,"start_time":%v,"duration":%v}
+		`{"id":1,"date":"%v","start_time":%v,"duration":%v}
 `,
+		originalTimeSlot["date"].(string),
 		originalTimeSlot["start_time"].(int),
 		timeSlot.Duration,
 	)

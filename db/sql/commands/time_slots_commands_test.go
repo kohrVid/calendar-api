@@ -18,6 +18,7 @@ func init() {
 
 func TestCreateTimeSlot(t *testing.T) {
 	timeSlot := models.TimeSlot{
+		Date:      "2020-02-25",
 		StartTime: 13,
 		Duration:  4,
 	}
@@ -26,6 +27,7 @@ func TestCreateTimeSlot(t *testing.T) {
 
 	expected := models.TimeSlot{
 		Id:        3,
+		Date:      "2020-02-25",
 		StartTime: timeSlot.StartTime,
 		Duration:  timeSlot.Duration,
 	}
@@ -36,6 +38,7 @@ func TestCreateTimeSlot(t *testing.T) {
 
 func TestCreateTimeSlotWithMissingFields(t *testing.T) {
 	timeSlot := models.TimeSlot{
+		Date:      "2020-02-25",
 		StartTime: 0,
 		Duration:  0,
 	}
@@ -49,6 +52,7 @@ func TestCreateTimeSlotWithMissingFields(t *testing.T) {
 		"Error expected",
 	)
 
+	assert.Equal(t, "", res.Date, "No timeSlot details expected")
 	assert.Equal(t, 0, res.StartTime, "No timeSlot details expected")
 	assert.Equal(t, 0, res.Duration, "No timeSlot details expected")
 }
@@ -73,6 +77,7 @@ func TestUpdateTimeSlot(t *testing.T) {
 
 	expected := models.TimeSlot{
 		Id:        timeSlot.Id,
+		Date:      "2020-02-25",
 		StartTime: timeSlot.StartTime,
 		Duration:  params.Duration,
 	}

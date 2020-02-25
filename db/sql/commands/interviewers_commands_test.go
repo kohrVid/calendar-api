@@ -164,6 +164,7 @@ func TestCreateInterviewerTimeSlot(t *testing.T) {
 	)[1]
 
 	timeSlot := models.TimeSlot{
+		Date:      ts["date"].(string),
 		StartTime: ts["start_time"].(int),
 		Duration:  ts["duration"].(int),
 	}
@@ -172,6 +173,7 @@ func TestCreateInterviewerTimeSlot(t *testing.T) {
 
 	expected := models.TimeSlot{
 		Id:        3,
+		Date:      timeSlot.Date,
 		StartTime: timeSlot.StartTime,
 		Duration:  timeSlot.Duration,
 	}
@@ -211,6 +213,7 @@ func TestCreateInterviewerTimeSlotIfAlreadyExists(t *testing.T) {
 	)[1]
 
 	timeSlot := models.TimeSlot{
+		Date:      ts["date"].(string),
 		StartTime: ts["start_time"].(int),
 		Duration:  ts["duration"].(int),
 	}
@@ -222,6 +225,13 @@ func TestCreateInterviewerTimeSlotIfAlreadyExists(t *testing.T) {
 		"ERROR #23505 time slot already exists for interviewer",
 		err.Error(),
 		"Error expected",
+	)
+
+	assert.Equal(
+		t,
+		timeSlot.Date,
+		res.Date,
+		"No time slot details expected",
 	)
 
 	assert.Equal(
