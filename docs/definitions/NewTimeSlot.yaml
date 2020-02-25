@@ -2,9 +2,12 @@ title: New TimeSlot
 description: A new time slot for an interview
 type: object
 required:
+  - date
   - start_time
   - duration
 properties:
+  date:
+    type: string
   start_time:
     type: integer
     format: int64
