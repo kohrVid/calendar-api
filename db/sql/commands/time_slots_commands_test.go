@@ -20,7 +20,7 @@ func TestCreateTimeSlot(t *testing.T) {
 	timeSlot := models.TimeSlot{
 		Date:      "2020-02-25",
 		StartTime: 13,
-		Duration:  4,
+		EndTime:   17,
 	}
 
 	res, err := CreateTimeSlot(&timeSlot)
@@ -29,7 +29,7 @@ func TestCreateTimeSlot(t *testing.T) {
 		Id:        3,
 		Date:      "2020-02-25",
 		StartTime: timeSlot.StartTime,
-		Duration:  timeSlot.Duration,
+		EndTime:   timeSlot.EndTime,
 	}
 
 	assert.Equal(t, expected, res, "New timeSlot expected")
@@ -40,7 +40,7 @@ func TestCreateTimeSlotWithMissingFields(t *testing.T) {
 	timeSlot := models.TimeSlot{
 		Date:      "2020-02-25",
 		StartTime: 0,
-		Duration:  0,
+		EndTime:   0,
 	}
 
 	res, err := CreateTimeSlot(&timeSlot)
@@ -54,7 +54,7 @@ func TestCreateTimeSlotWithMissingFields(t *testing.T) {
 
 	assert.Equal(t, "", res.Date, "No timeSlot details expected")
 	assert.Equal(t, 0, res.StartTime, "No timeSlot details expected")
-	assert.Equal(t, 0, res.Duration, "No timeSlot details expected")
+	assert.Equal(t, 0, res.EndTime, "No timeSlot details expected")
 }
 
 func TestUpdateTimeSlot(t *testing.T) {
@@ -68,7 +68,7 @@ func TestUpdateTimeSlot(t *testing.T) {
 	}
 
 	params := models.TimeSlot{
-		Duration: 4,
+		EndTime: 16,
 	}
 
 	res := UpdateTimeSlot(&timeSlot, params)
@@ -79,7 +79,7 @@ func TestUpdateTimeSlot(t *testing.T) {
 		Id:        timeSlot.Id,
 		Date:      "2020-02-25",
 		StartTime: timeSlot.StartTime,
-		Duration:  params.Duration,
+		EndTime:   params.EndTime,
 	}
 
 	assert.Equal(t, expected, res, "Updated timeSlot expected")
@@ -116,5 +116,5 @@ func TestDeleteTimeSlot(t *testing.T) {
 	)
 
 	assert.Equal(t, 0, res.StartTime, "No timeSlot details expected")
-	assert.Equal(t, 0, res.Duration, "No timeSlot details expected")
+	assert.Equal(t, 0, res.EndTime, "No timeSlot details expected")
 }

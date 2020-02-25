@@ -84,7 +84,7 @@ func CreateInterviewerTimeSlot(iid string, timeSlot *models.TimeSlot) (models.Ti
 	      ts.id,
 	      ts.date,
 	      ts.start_time,
-	      ts.duration
+	      ts.end_time
 	    FROM time_slots ts
 	      INNER JOIN interviewer_time_slots its
 	        ON ts.id = its.time_slot_id
@@ -93,12 +93,12 @@ func CreateInterviewerTimeSlot(iid string, timeSlot *models.TimeSlot) (models.Ti
 	      WHERE i.id = ?
 	        AND ts.date = ?
 	        AND ts.start_time = ?
-		AND ts.duration = ?;
+		AND ts.end_time = ?;
 	    `,
 		iid2,
 		timeSlot.Date,
 		timeSlot.StartTime,
-		timeSlot.Duration,
+		timeSlot.EndTime,
 	)
 
 	if err != nil {

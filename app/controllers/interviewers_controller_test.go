@@ -447,11 +447,11 @@ func TestInterviewerAvailabilityIndexHandler(t *testing.T) {
 	)[1]
 
 	expectedBody := fmt.Sprintf(
-		`[{"id":2,"date":"%v","start_time":%v,"duration":%v}]
+		`[{"id":2,"date":"%v","start_time":%v,"end_time":%v}]
 `,
 		timeSlot["date"].(string),
 		timeSlot["start_time"].(int),
-		timeSlot["duration"].(int),
+		timeSlot["end_time"].(int),
 	)
 
 	assert.Equal(t, 200, resp.Code, "200 response expected")
@@ -490,11 +490,11 @@ func TestShowInterviewerAvailabilityHandler(t *testing.T) {
 	)[1]
 
 	expectedBody := fmt.Sprintf(
-		`{"id":2,"date":"%v","start_time":%v,"duration":%v}
+		`{"id":2,"date":"%v","start_time":%v,"end_time":%v}
 `,
 		timeSlot["date"].(string),
 		timeSlot["start_time"].(int),
-		timeSlot["duration"].(int),
+		timeSlot["end_time"].(int),
 	)
 
 	assert.Equal(t, 200, resp.Code, "200 response expected")
@@ -580,15 +580,15 @@ func TestNewInterviewerAvailabilityHandler(t *testing.T) {
 	timeSlot := models.TimeSlot{
 		Date:      "2020-02-25",
 		StartTime: 13,
-		Duration:  3,
+		EndTime:   16,
 	}
 
 	data := []byte(
 		fmt.Sprintf(
-			`{"date":"%v","start_time":%v,"duration":%v}`,
+			`{"date":"%v","start_time":%v,"end_time":%v}`,
 			timeSlot.Date,
 			timeSlot.StartTime,
-			timeSlot.Duration,
+			timeSlot.EndTime,
 		),
 	)
 
@@ -605,11 +605,11 @@ func TestNewInterviewerAvailabilityHandler(t *testing.T) {
 	MockRouter().ServeHTTP(resp, req)
 
 	expectedBody := fmt.Sprintf(
-		`{"id":3,"date":"%v","start_time":%v,"duration":%v}
+		`{"id":3,"date":"%v","start_time":%v,"end_time":%v}
 `,
 		timeSlot.Date,
 		timeSlot.StartTime,
-		timeSlot.Duration,
+		timeSlot.EndTime,
 	)
 
 	assert.Equal(t, 201, resp.Code, "201 response expected")
@@ -659,7 +659,7 @@ func TestNewInterviewerAvailabilityHandlerMissingFields(t *testing.T) {
 
 	assert.Equal(
 		t,
-		"Missing field \"duration\" in time_slot",
+		"Missing field \"end_time\" in time_slot",
 		resp.Body.String(),
 		"Missing field error expected",
 	)
@@ -673,15 +673,15 @@ func TestEditInterviewersAvailabilityHandler(t *testing.T) {
 	)[1]
 
 	timeSlot := models.TimeSlot{
-		Id:       1,
-		Duration: 4,
+		Id:      1,
+		EndTime: 14,
 	}
 
 	data := []byte(
 		fmt.Sprintf(
-			`{"start_time":%v,"duration":%v}`,
+			`{"start_time":%v,"end_time":%v}`,
 			originalTimeSlot["start_time"].(int),
-			timeSlot.Duration,
+			timeSlot.EndTime,
 		),
 	)
 
@@ -702,11 +702,11 @@ func TestEditInterviewersAvailabilityHandler(t *testing.T) {
 	MockRouter().ServeHTTP(resp, req)
 
 	expectedBody := fmt.Sprintf(
-		`{"id":2,"date":"%v","start_time":%v,"duration":%v}
+		`{"id":2,"date":"%v","start_time":%v,"end_time":%v}
 `,
 		originalTimeSlot["date"].(string),
 		originalTimeSlot["start_time"].(int),
-		timeSlot.Duration,
+		timeSlot.EndTime,
 	)
 
 	assert.Equal(t, 200, resp.Code, "200 response expected")

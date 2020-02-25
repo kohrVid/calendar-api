@@ -166,7 +166,7 @@ func TestCreateInterviewerTimeSlot(t *testing.T) {
 	timeSlot := models.TimeSlot{
 		Date:      ts["date"].(string),
 		StartTime: ts["start_time"].(int),
-		Duration:  ts["duration"].(int),
+		EndTime:   ts["end_time"].(int),
 	}
 
 	res, err := CreateInterviewerTimeSlot("2", &timeSlot)
@@ -175,7 +175,7 @@ func TestCreateInterviewerTimeSlot(t *testing.T) {
 		Id:        3,
 		Date:      timeSlot.Date,
 		StartTime: timeSlot.StartTime,
-		Duration:  timeSlot.Duration,
+		EndTime:   timeSlot.EndTime,
 	}
 
 	expectedInterviewerTimeSlot := models.InterviewerTimeSlot{
@@ -215,7 +215,7 @@ func TestCreateInterviewerTimeSlotIfAlreadyExists(t *testing.T) {
 	timeSlot := models.TimeSlot{
 		Date:      ts["date"].(string),
 		StartTime: ts["start_time"].(int),
-		Duration:  ts["duration"].(int),
+		EndTime:   ts["end_time"].(int),
 	}
 
 	res, err := CreateInterviewerTimeSlot("1", &timeSlot)
@@ -243,8 +243,8 @@ func TestCreateInterviewerTimeSlotIfAlreadyExists(t *testing.T) {
 
 	assert.Equal(
 		t,
-		timeSlot.Duration,
-		res.Duration,
+		timeSlot.EndTime,
+		res.EndTime,
 		"No time slot details expected",
 	)
 }
@@ -257,7 +257,7 @@ func TestCreateInterviewerWithMissingFields(t *testing.T) {
 	)[1]
 
 	timeSlot := models.TimeSlot{
-		Duration: ts["duration"].(int),
+		EndTime: ts["end_time"].(int),
 	}
 
 	res, err := CreateInterviewerTimeSlot("2", &timeSlot)
@@ -270,7 +270,7 @@ func TestCreateInterviewerWithMissingFields(t *testing.T) {
 	)
 
 	assert.Equal(t, 0, res.StartTime, "No time slot details expected")
-	assert.Equal(t, 0, res.Duration, "No time slot details expected")
+	assert.Equal(t, 0, res.EndTime, "No time slot details expected")
 
 	dbHelpers.Clean(conf)
 	dbHelpers.Seed(conf)
@@ -308,7 +308,7 @@ func TestDeleteInterviewerTimeSlot(t *testing.T) {
 	)
 
 	assert.Equal(t, 0, res.StartTime, "No time slot details expected")
-	assert.Equal(t, 0, res.Duration, "No time slot details expected")
+	assert.Equal(t, 0, res.EndTime, "No time slot details expected")
 
 	dbHelpers.Clean(conf)
 	dbHelpers.Seed(conf)

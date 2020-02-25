@@ -56,7 +56,7 @@ func ListCandidateTimeSlots(cid string) []models.TimeSlot {
 	      ts.id,
 	      ts.date,
 	      ts.start_time,
-	      ts.duration
+	      ts.end_time
 	    FROM time_slots ts
 	    INNER JOIN candidate_time_slots cts
 	    ON ts.id = cts.time_slot_id
@@ -85,7 +85,7 @@ func FindCandidateTimeSlot(cid string, id string) (models.TimeSlot, error) {
 	      ts.id,
 	      ts.date,
 	      ts.start_time,
-	      ts.duration
+	      ts.end_time
 	    FROM time_slots ts
 	    INNER JOIN candidate_time_slots cts
 	    ON ts.id = cts.time_slot_id
