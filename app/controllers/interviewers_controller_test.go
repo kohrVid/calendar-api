@@ -447,8 +447,9 @@ func TestInterviewerAvailabilityIndexHandler(t *testing.T) {
 	)[1]
 
 	expectedBody := fmt.Sprintf(
-		`[{"id":2,"start_time":%v,"duration":%v}]
+		`[{"id":2,"date":"%v","start_time":%v,"duration":%v}]
 `,
+		timeSlot["date"].(string),
 		timeSlot["start_time"].(int),
 		timeSlot["duration"].(int),
 	)
@@ -489,8 +490,9 @@ func TestShowInterviewerAvailabilityHandler(t *testing.T) {
 	)[1]
 
 	expectedBody := fmt.Sprintf(
-		`{"id":2,"start_time":%v,"duration":%v}
+		`{"id":2,"date":"%v","start_time":%v,"duration":%v}
 `,
+		timeSlot["date"].(string),
 		timeSlot["start_time"].(int),
 		timeSlot["duration"].(int),
 	)
@@ -576,13 +578,15 @@ func TestShowInterviewerAvailabilityHandlerWhenTimeslotIsForDifferentInterviewer
 
 func TestNewInterviewerAvailabilityHandler(t *testing.T) {
 	timeSlot := models.TimeSlot{
+		Date:      "2020-02-25",
 		StartTime: 13,
 		Duration:  3,
 	}
 
 	data := []byte(
 		fmt.Sprintf(
-			`{"start_time":%v,"duration":%v}`,
+			`{"date":"%v","start_time":%v,"duration":%v}`,
+			timeSlot.Date,
 			timeSlot.StartTime,
 			timeSlot.Duration,
 		),
@@ -601,8 +605,9 @@ func TestNewInterviewerAvailabilityHandler(t *testing.T) {
 	MockRouter().ServeHTTP(resp, req)
 
 	expectedBody := fmt.Sprintf(
-		`{"id":3,"start_time":%v,"duration":%v}
+		`{"id":3,"date":"%v","start_time":%v,"duration":%v}
 `,
+		timeSlot.Date,
 		timeSlot.StartTime,
 		timeSlot.Duration,
 	)
@@ -697,8 +702,9 @@ func TestEditInterviewersAvailabilityHandler(t *testing.T) {
 	MockRouter().ServeHTTP(resp, req)
 
 	expectedBody := fmt.Sprintf(
-		`{"id":2,"start_time":%v,"duration":%v}
+		`{"id":2,"date":"%v","start_time":%v,"duration":%v}
 `,
+		originalTimeSlot["date"].(string),
 		originalTimeSlot["start_time"].(int),
 		timeSlot.Duration,
 	)

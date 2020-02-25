@@ -102,6 +102,7 @@ func TestListInterviewerTimeSlots(t *testing.T) {
 
 	timeSlot := models.TimeSlot{
 		Id:        2,
+		Date:      ts["date"].(string),
 		StartTime: ts["start_time"].(int),
 		Duration:  ts["duration"].(int),
 	}
@@ -132,6 +133,7 @@ func TestFindInterviewerTimeSlot(t *testing.T) {
 
 	expected := models.TimeSlot{
 		Id:        2,
+		Date:      ts["date"].(string),
 		StartTime: ts["start_time"].(int),
 		Duration:  ts["duration"].(int),
 	}

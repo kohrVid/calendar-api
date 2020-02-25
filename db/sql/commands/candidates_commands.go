@@ -82,6 +82,7 @@ func CreateCandidateTimeSlot(cid string, timeSlot *models.TimeSlot) (models.Time
 		`
 	  SELECT 
 	      ts.id,
+	      ts.date,
 	      ts.start_time,
 	      ts.duration
 	    FROM time_slots ts
@@ -90,10 +91,12 @@ func CreateCandidateTimeSlot(cid string, timeSlot *models.TimeSlot) (models.Time
 	      INNER JOIN candidates c
 	        ON c.id = cts.candidate_id
 	      WHERE c.id = ?
+	        AND ts.date = ?
 	        AND ts.start_time = ?
 		AND ts.duration = ?;
 	    `,
 		cid2,
+		timeSlot.Date,
 		timeSlot.StartTime,
 		timeSlot.Duration,
 	)
