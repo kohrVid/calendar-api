@@ -1,0 +1,2 @@
+ALTER TABLE time_slots
+  ADD COLUMN date DATE DEFAULT NOW() NOT NULL;
