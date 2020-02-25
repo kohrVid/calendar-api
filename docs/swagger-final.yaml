@@ -797,9 +797,12 @@ definitions:
     description: A new time slot for an interview
     type: object
     required:
+      - date
       - start_time
       - duration
     properties:
+      date:
+        type: string
       start_time:
         type: integer
         format: int64
@@ -811,6 +814,8 @@ definitions:
     description: A edit a time slot's attributes for an interview
     type: object
     properties:
+      date:
+        type: string
       start_time:
         type: integer
         format: int64
@@ -822,9 +827,12 @@ definitions:
     description: The object returned in the event of an error
     type: object
     required:
+      - date
       - start_time
       - duration
     properties:
+      date:
+        type: string
       start_time:
         type: integer
         format: int64

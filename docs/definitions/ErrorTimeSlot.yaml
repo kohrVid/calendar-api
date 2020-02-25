@@ -2,9 +2,12 @@ title: ErrorTimeSlot
 description: The object returned in the event of an error
 type: object
 required:
+  - date
   - start_time
   - duration
 properties:
+  date:
+    type: string
   start_time:
     type: integer
     format: int64

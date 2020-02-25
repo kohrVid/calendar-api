@@ -2,6 +2,8 @@ title: Edit TimeSlot
 description: A edit a time slot's attributes for an interview
 type: object
 properties:
+  date:
+    type: string
   start_time:
     type: integer
     format: int64
