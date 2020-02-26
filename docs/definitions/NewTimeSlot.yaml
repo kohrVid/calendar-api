@@ -4,13 +4,13 @@ type: object
 required:
   - date
   - start_time
-  - duration
+  - end_time
 properties:
   date:
     type: string
   start_time:
     type: integer
     format: int64
-  duration:
+  end_time:
     type: integer
     format: int64

@@ -7,6 +7,6 @@ properties:
   start_time:
     type: integer
     format: int64
-  duration:
+  end_time:
     type: integer
     format: int64
