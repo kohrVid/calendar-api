@@ -4,5 +4,5 @@ type TimeSlot struct {
 	Id        int    `json:"id"`
 	Date      string `json:"date"`
 	StartTime int    `json:"start_time"`
-	Duration  int    `json:"duration"`
+	EndTime   int    `json:"end_time"`
 }

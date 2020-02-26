@@ -22,14 +22,14 @@ func TestListTimeSlots(t *testing.T) {
 		Id:        1,
 		Date:      timeSlots[0]["date"].(string),
 		StartTime: timeSlots[0]["start_time"].(int),
-		Duration:  timeSlots[0]["duration"].(int),
+		EndTime:   timeSlots[0]["end_time"].(int),
 	}
 
 	timeSlot2 := models.TimeSlot{
 		Id:        2,
 		Date:      timeSlots[1]["date"].(string),
 		StartTime: timeSlots[1]["start_time"].(int),
-		Duration:  timeSlots[1]["duration"].(int),
+		EndTime:   timeSlots[1]["end_time"].(int),
 	}
 
 	expected := []models.TimeSlot{timeSlot1, timeSlot2}
@@ -60,7 +60,7 @@ func TestFindTimeSlot(t *testing.T) {
 		Id:        1,
 		Date:      timeSlot["date"].(string),
 		StartTime: timeSlot["start_time"].(int),
-		Duration:  timeSlot["duration"].(int),
+		EndTime:   timeSlot["end_time"].(int),
 	}
 
 	assert.Equal(t, expected, res, "first time slot expected")
@@ -78,5 +78,5 @@ func TestFindTimeSlotThatDoesNotExist(t *testing.T) {
 	)
 
 	assert.Equal(t, 0, res.StartTime, "No time slot details expected")
-	assert.Equal(t, 0, res.Duration, "No time slot details expected")
+	assert.Equal(t, 0, res.EndTime, "No time slot details expected")
 }

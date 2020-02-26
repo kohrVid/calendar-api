@@ -799,14 +799,14 @@ definitions:
     required:
       - date
       - start_time
-      - duration
+      - end_time
     properties:
       date:
         type: string
       start_time:
         type: integer
         format: int64
-      duration:
+      end_time:
         type: integer
         format: int64
   EditTimeSlot:
@@ -819,7 +819,7 @@ definitions:
       start_time:
         type: integer
         format: int64
-      duration:
+      end_time:
         type: integer
         format: int64
   ErrorTimeSlot:
@@ -829,13 +829,13 @@ definitions:
     required:
       - date
       - start_time
-      - duration
+      - end_time
     properties:
       date:
         type: string
       start_time:
         type: integer
         format: int64
-      duration:
+      end_time:
         type: integer
         format: int64

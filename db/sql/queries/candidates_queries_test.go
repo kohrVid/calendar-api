@@ -104,7 +104,7 @@ func TestListCandidateTimeSlots(t *testing.T) {
 		Id:        1,
 		Date:      ts["date"].(string),
 		StartTime: ts["start_time"].(int),
-		Duration:  ts["duration"].(int),
+		EndTime:   ts["end_time"].(int),
 	}
 
 	expected := []models.TimeSlot{timeSlot}
@@ -135,7 +135,7 @@ func TestFindCandidateTimeSlot(t *testing.T) {
 		Id:        1,
 		Date:      ts["date"].(string),
 		StartTime: ts["start_time"].(int),
-		Duration:  ts["duration"].(int),
+		EndTime:   ts["end_time"].(int),
 	}
 
 	assert.Equal(t, expected, res, "List of candidates expected")
@@ -156,7 +156,7 @@ func TestFindCandidateTimeSlotDoesNotExist(t *testing.T) {
 	)
 
 	assert.Equal(t, 0, res.StartTime, "No time slot details expected")
-	assert.Equal(t, 0, res.Duration, "No time slot details expected")
+	assert.Equal(t, 0, res.EndTime, "No time slot details expected")
 }
 
 func TestFindCandidateTimeSlotIsForAnotherCandidate(t *testing.T) {
@@ -170,5 +170,5 @@ func TestFindCandidateTimeSlotIsForAnotherCandidate(t *testing.T) {
 	)
 
 	assert.Equal(t, 0, res.StartTime, "No time slot details expected")
-	assert.Equal(t, 0, res.Duration, "No time slot details expected")
+	assert.Equal(t, 0, res.EndTime, "No time slot details expected")
 }
