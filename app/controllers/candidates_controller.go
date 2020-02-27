@@ -124,12 +124,23 @@ func DeleteCandidatesHandler(w http.ResponseWriter, r *http.Request) {
 
 func CandidateAvailabilityIndexHandler(w http.ResponseWriter, r *http.Request) {
 	cid := strings.Split(r.URL.Path, "/")[2]
+	queryString := r.URL.Query()
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
-	body := queries.ListCandidateTimeSlots(cid)
 
-	if err := json.NewEncoder(w).Encode(body); err != nil {
-		log.Fatal(err)
+	if (len(queryString) > 0) && (len(queryString["interviewer"]) > 0) {
+		interviewersIds := queryString["interviewer"]
+		body := queries.FindCandidateAndInterviewerTimeSlot(cid, interviewersIds)
+
+		if err := json.NewEncoder(w).Encode(body); err != nil {
+			log.Fatal(err)
+		}
+	} else {
+		body := queries.ListCandidateTimeSlots(cid)
+
+		if err := json.NewEncoder(w).Encode(body); err != nil {
+			log.Fatal(err)
+		}
 	}
 }
 

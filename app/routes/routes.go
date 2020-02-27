@@ -52,6 +52,35 @@ func candidatesResources(r *mux.Router) *mux.Router {
 	return r
 }
 
+func candidatesAvailabilityResources(r *mux.Router) *mux.Router {
+	r.HandleFunc(
+		"/candidates/{cid}/availability/{id}",
+		controllers.DeleteCandidateAvailabilityHandler,
+	).Methods("DELETE")
+
+	r.HandleFunc(
+		"/candidates/{cid}/availability/{id}",
+		controllers.EditCandidateAvailabilityHandler,
+	).Methods("PATCH")
+
+	r.HandleFunc(
+		"/candidates/{cid}/availability/{id}",
+		controllers.ShowCandidateAvailabilityHandler,
+	).Methods("GET")
+
+	r.HandleFunc(
+		"/candidates/{cid}/availability",
+		controllers.NewCandidateAvailabilityHandler,
+	).Methods("POST")
+
+	r.HandleFunc(
+		"/candidates/{cid}/availability",
+		controllers.CandidateAvailabilityIndexHandler,
+	).Methods("GET")
+
+	return r
+}
+
 func interviewersAvailabilityResources(r *mux.Router) *mux.Router {
 	r.HandleFunc(
 		"/interviewers/{iid}/availability/{id}",
@@ -105,35 +134,6 @@ func interviewersResources(r *mux.Router) *mux.Router {
 	r.HandleFunc(
 		"/interviewers",
 		controllers.InterviewersIndexHandler,
-	).Methods("GET")
-
-	return r
-}
-
-func candidatesAvailabilityResources(r *mux.Router) *mux.Router {
-	r.HandleFunc(
-		"/candidates/{cid}/availability/{id}",
-		controllers.DeleteCandidateAvailabilityHandler,
-	).Methods("DELETE")
-
-	r.HandleFunc(
-		"/candidates/{cid}/availability/{id}",
-		controllers.EditCandidateAvailabilityHandler,
-	).Methods("PATCH")
-
-	r.HandleFunc(
-		"/candidates/{cid}/availability/{id}",
-		controllers.ShowCandidateAvailabilityHandler,
-	).Methods("GET")
-
-	r.HandleFunc(
-		"/candidates/{cid}/availability",
-		controllers.NewCandidateAvailabilityHandler,
-	).Methods("POST")
-
-	r.HandleFunc(
-		"/candidates/{cid}/availability",
-		controllers.CandidateAvailabilityIndexHandler,
 	).Methods("GET")
 
 	return r
