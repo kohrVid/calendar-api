@@ -177,6 +177,8 @@ func TestFindCandidateTimeSlotIsForAnotherCandidate(t *testing.T) {
 
 func TestFindCandidateAndInterviewerTimeSlot(t *testing.T) {
 	conf := config.LoadConfig()
+	dbHelpers.Clean(conf)
+	dbHelpers.Seed(conf)
 	expectedInterviewer := 2
 
 	expectedAvailability := models.TimeSlot{
@@ -192,7 +194,7 @@ func TestFindCandidateAndInterviewerTimeSlot(t *testing.T) {
 		log.Println(err)
 	}
 
-	res := FindCandidateAndInterviewerTimeSlot("1", []int{1, 2})
+	res := FindCandidateAndInterviewerTimeSlot("1", []string{"1", "2"})
 
 	expected := []serialisers.InterviewerAvailability{
 		serialisers.InterviewerAvailability{
@@ -203,9 +205,9 @@ func TestFindCandidateAndInterviewerTimeSlot(t *testing.T) {
 			InterviewerId: expectedInterviewer,
 			TimeSlots: []models.TimeSlot{
 				models.TimeSlot{
-					Id:        3,
-					Date:      "2020-02-25",
-					StartTime: 11,
+					Id:        expectedAvailability.Id,
+					Date:      expectedAvailability.Date,
+					StartTime: expectedAvailability.StartTime,
 					EndTime:   12,
 				},
 			},
@@ -213,7 +215,59 @@ func TestFindCandidateAndInterviewerTimeSlot(t *testing.T) {
 	}
 
 	assert.Equal(t, expected, res, "Interviewer availability collection expected")
+}
 
+func TestFindCandidateAndInterviewerTimeSlotUnavailableCandidate(t *testing.T) {
+	conf := config.LoadConfig()
 	dbHelpers.Clean(conf)
 	dbHelpers.Seed(conf)
+
+	expectedAvailability := models.TimeSlot{
+		Id:        3,
+		Date:      "2020-02-25",
+		StartTime: 11,
+		EndTime:   16,
+	}
+
+	_, err := commands.CreateInterviewerTimeSlot("2", &expectedAvailability)
+
+	if err != nil {
+		log.Println(err)
+	}
+
+	res := FindCandidateAndInterviewerTimeSlot("2", []string{"1", "2"})
+
+	expected := []serialisers.InterviewerAvailability{
+		serialisers.InterviewerAvailability{
+			InterviewerId: 1,
+			TimeSlots:     []models.TimeSlot{},
+		},
+		serialisers.InterviewerAvailability{
+			InterviewerId: 2,
+			TimeSlots:     []models.TimeSlot{},
+		},
+	}
+
+	assert.Equal(t, expected, res, "Interviewer availability collection expected")
+}
+
+func TestFindCandidateAndInterviewerTimeSlotUnavailableInterviewers(t *testing.T) {
+	conf := config.LoadConfig()
+	dbHelpers.Clean(conf)
+	dbHelpers.Seed(conf)
+
+	res := FindCandidateAndInterviewerTimeSlot("1", []string{"1", "2"})
+
+	expected := []serialisers.InterviewerAvailability{
+		serialisers.InterviewerAvailability{
+			InterviewerId: 1,
+			TimeSlots:     []models.TimeSlot{},
+		},
+		serialisers.InterviewerAvailability{
+			InterviewerId: 2,
+			TimeSlots:     []models.TimeSlot{},
+		},
+	}
+
+	assert.Equal(t, expected, res, "Interviewer availability collection expected")
 }

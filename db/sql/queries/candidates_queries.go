@@ -104,13 +104,12 @@ func FindCandidateTimeSlot(cid string, id string) (models.TimeSlot, error) {
 	return *timeSlot, nil
 }
 
-func FindCandidateAndInterviewerTimeSlot(cid string, interviewers []int) []serialisers.InterviewerAvailability {
+func FindCandidateAndInterviewerTimeSlot(cid string, interviewers []string) []serialisers.InterviewerAvailability {
 	conf := config.LoadConfig()
 	db := db.DBConnect(conf)
 
-	timeSlots1 := make([]models.TimeSlot, 0)
-	timeSlots2 := make([]models.TimeSlot, 0)
-	candidateAvailability := ListCandidateTimeSlots(cid)
+	availability := make([]serialisers.InterviewerAvailability, 0)
+	interviewersIds := []int{}
 
 	sql := `
 	  SELECT
@@ -118,7 +117,7 @@ func FindCandidateAndInterviewerTimeSlot(cid string, interviewers []int) []seria
 	      ts.date,
 	      ts.start_time,
 	      CASE WHEN ts.end_time > ? THEN ?
-	      ELSE ts.end_time
+		ELSE ts.end_time
 	      END end_time
 	    FROM time_slots ts
 	    INNER JOIN interviewer_time_slots its
@@ -130,57 +129,48 @@ func FindCandidateAndInterviewerTimeSlot(cid string, interviewers []int) []seria
 	      AND ts.start_time >= ?
 	      AND ts.start_time < ?;`
 
-	for _, ca := range candidateAvailability {
-		ts := make([]models.TimeSlot, 0)
-		_, err := db.Query(
-			&ts,
-			sql,
-			ca.EndTime,
-			ca.EndTime,
-			interviewers[0],
-			ca.Date,
-			ca.StartTime,
-			ca.EndTime,
-		)
+	for idx, iid := range interviewers {
+		id, err := strconv.Atoi(iid)
 
 		if err != nil {
 			fmt.Errorf("Error: %v", err)
 		}
 
-		timeSlots1 = append(timeSlots1, ts...)
+		interviewersIds = append(interviewersIds, id)
+		candidateAvailability := ListCandidateTimeSlots(cid)
+		timeSlots := make([]models.TimeSlot, 0)
 
-	}
+		if len(candidateAvailability) > 0 {
+			for _, ca := range candidateAvailability {
+				ts := make([]models.TimeSlot, 0)
+				_, err := db.Query(
+					&ts,
+					sql,
+					ca.EndTime,
+					ca.EndTime,
+					interviewers[idx],
+					ca.Date,
+					ca.StartTime,
+					ca.EndTime,
+				)
 
-	for _, ca := range candidateAvailability {
-		ts := make([]models.TimeSlot, 0)
-		_, err := db.Query(
-			&ts,
-			sql,
-			ca.EndTime,
-			ca.EndTime,
-			interviewers[1],
-			ca.Date,
-			ca.StartTime,
-			ca.EndTime,
-		)
+				if err != nil {
+					fmt.Errorf("Error: %v", err)
+				}
 
-		if err != nil {
-			fmt.Errorf("Error: %v", err)
+				timeSlots = append(timeSlots, ts...)
+
+			}
+
 		}
 
-		timeSlots2 = append(timeSlots2, ts...)
-
-	}
-
-	availability := []serialisers.InterviewerAvailability{
-		serialisers.InterviewerAvailability{
-			InterviewerId: interviewers[0],
-			TimeSlots:     timeSlots1,
-		},
-		serialisers.InterviewerAvailability{
-			InterviewerId: interviewers[1],
-			TimeSlots:     timeSlots2,
-		},
+		availability = append(
+			availability,
+			serialisers.InterviewerAvailability{
+				InterviewerId: interviewersIds[idx],
+				TimeSlots:     timeSlots,
+			},
+		)
 	}
 
 	return availability
