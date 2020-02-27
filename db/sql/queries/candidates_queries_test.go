@@ -5,8 +5,10 @@ import (
 	"testing"
 
 	"github.com/kohrVid/calendar-api/app/models"
+	"github.com/kohrVid/calendar-api/app/serialisers"
 	"github.com/kohrVid/calendar-api/config"
 	"github.com/kohrVid/calendar-api/db/operations/dbHelpers"
+	"github.com/kohrVid/calendar-api/db/sql/commands"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -171,4 +173,47 @@ func TestFindCandidateTimeSlotIsForAnotherCandidate(t *testing.T) {
 
 	assert.Equal(t, 0, res.StartTime, "No time slot details expected")
 	assert.Equal(t, 0, res.EndTime, "No time slot details expected")
+}
+
+func TestFindCandidateAndInterviewerTimeSlot(t *testing.T) {
+	conf := config.LoadConfig()
+	expectedInterviewer := 2
+
+	expectedAvailability := models.TimeSlot{
+		Id:        3,
+		Date:      "2020-02-25",
+		StartTime: 11,
+		EndTime:   16,
+	}
+
+	_, err := commands.CreateInterviewerTimeSlot("2", &expectedAvailability)
+
+	if err != nil {
+		log.Println(err)
+	}
+
+	res := FindCandidateAndInterviewerTimeSlot("1", []int{1, 2})
+
+	expected := []serialisers.InterviewerAvailability{
+		serialisers.InterviewerAvailability{
+			InterviewerId: 1,
+			TimeSlots:     []models.TimeSlot{},
+		},
+		serialisers.InterviewerAvailability{
+			InterviewerId: expectedInterviewer,
+			TimeSlots: []models.TimeSlot{
+				models.TimeSlot{
+					Id:        3,
+					Date:      "2020-02-25",
+					StartTime: 11,
+					EndTime:   12,
+				},
+			},
+		},
+	}
+
+	assert.Equal(t, expected, res, "Interviewer availability collection expected")
+
+	dbHelpers.Clean(conf)
+	dbHelpers.Seed(conf)
 }
