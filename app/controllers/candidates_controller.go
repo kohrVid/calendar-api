@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"strconv"
 	"strings"
 
 	log "github.com/sirupsen/logrus"
@@ -127,16 +128,26 @@ func CandidateAvailabilityIndexHandler(w http.ResponseWriter, r *http.Request) {
 	queryString := r.URL.Query()
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
+	all := false
+	var err error
+
+	if (len(queryString) > 0) && (len(queryString["all"]) > 0) {
+		all, err = strconv.ParseBool(queryString["all"][0])
+
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
 
 	if (len(queryString) > 0) && (len(queryString["interviewer"]) > 0) {
 		interviewersIds := queryString["interviewer"]
-		body := queries.FindCandidateAndInterviewerTimeSlot(cid, interviewersIds)
+		body := queries.ListCandidateAndInterviewerTimeSlot(cid, interviewersIds, all)
 
 		if err := json.NewEncoder(w).Encode(body); err != nil {
 			log.Fatal(err)
 		}
 	} else {
-		body := queries.ListCandidateTimeSlots(cid)
+		body := queries.ListCandidateTimeSlots(cid, all)
 
 		if err := json.NewEncoder(w).Encode(body); err != nil {
 			log.Fatal(err)
