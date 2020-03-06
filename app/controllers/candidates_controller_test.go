@@ -3,14 +3,22 @@ package controllers
 import (
 	"bytes"
 	"fmt"
+	"log"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"testing"
 
 	"github.com/kohrVid/calendar-api/app/models"
 	"github.com/kohrVid/calendar-api/config"
 	"github.com/kohrVid/calendar-api/db/operations/dbHelpers"
+	"github.com/kohrVid/calendar-api/db/sql/commands"
 	"github.com/stretchr/testify/assert"
+)
+
+var (
+	pastTime    = "2020-02-24T07:00:48Z"
+	currentTime = "2020-03-05T07:00:48Z"
 )
 
 func init() {
@@ -72,6 +80,7 @@ func TestCandidatesIndexHandler(t *testing.T) {
 func TestCandidatesIndexHandlerEmpty(t *testing.T) {
 	conf := config.LoadConfig()
 	dbHelpers.Clean(conf)
+	os.Setenv("TIME_NOW", fmt.Sprintf("'%v'::timestamp", pastTime))
 
 	req, err := http.NewRequest("GET", "/candidates", nil)
 
@@ -427,10 +436,46 @@ func TestDeleteCandidatesHandlerWhenCandidateDoesNotExist(t *testing.T) {
 	dbHelpers.Seed(conf)
 }
 
-func TestCandidateAvailabilityIndexHandler(t *testing.T) {
-	conf := config.LoadConfig()
+func TestCandidateAvailabilityIndexHandlerDefault(t *testing.T) {
+	os.Setenv("TIME_NOW", fmt.Sprintf("'%v'::timestamp", currentTime))
 
 	req, err := http.NewRequest("GET", "/candidates/1/availability", nil)
+
+	if err != nil {
+		t.Errorf(
+			"Test failed.\nGot:\n\t%v",
+			err.Error(),
+		)
+	}
+
+	resp := httptest.NewRecorder()
+	MockRouter().ServeHTTP(resp, req)
+
+	expectedBody := `[]
+`
+
+	assert.Equal(t, 200, resp.Code, "200 response expected")
+
+	assert.Equal(
+		t,
+		"application/json; charset=UTF-8",
+		resp.Header().Get("Content-Type"),
+		"JSON response expected",
+	)
+
+	assert.Equal(
+		t,
+		expectedBody,
+		resp.Body.String(),
+		"List of time slots expected",
+	)
+}
+
+func TestCandidateAvailabilityIndexHandlerAllIsTrue(t *testing.T) {
+	conf := config.LoadConfig()
+	os.Setenv("TIME_NOW", fmt.Sprintf("'%v'::timestamp", currentTime))
+
+	req, err := http.NewRequest("GET", "/candidates/1/availability?all=true", nil)
 
 	if err != nil {
 		t.Errorf(
@@ -469,6 +514,284 @@ func TestCandidateAvailabilityIndexHandler(t *testing.T) {
 		resp.Body.String(),
 		"List of time slots expected",
 	)
+}
+
+func TestCandidateAvailabilityIndexHandlerAllIsFalse(t *testing.T) {
+	os.Setenv("TIME_NOW", fmt.Sprintf("'%v'::timestamp", currentTime))
+	req, err := http.NewRequest("GET", "/candidates/1/availability?all=false", nil)
+
+	if err != nil {
+		t.Errorf(
+			"Test failed.\nGot:\n\t%v",
+			err.Error(),
+		)
+	}
+
+	resp := httptest.NewRecorder()
+	MockRouter().ServeHTTP(resp, req)
+
+	expectedBody := `[]
+`
+
+	assert.Equal(t, 200, resp.Code, "200 response expected")
+
+	assert.Equal(
+		t,
+		"application/json; charset=UTF-8",
+		resp.Header().Get("Content-Type"),
+		"JSON response expected",
+	)
+
+	assert.Equal(
+		t,
+		expectedBody,
+		resp.Body.String(),
+		"List of time slots expected",
+	)
+}
+
+func TestCandidateAvailabilityIndexHandlerWithInterviewers(t *testing.T) {
+	conf := config.LoadConfig()
+	dbHelpers.Clean(conf)
+	dbHelpers.Seed(conf)
+	os.Setenv("TIME_NOW", fmt.Sprintf("'%v'::timestamp", pastTime))
+
+	expectedAvailability := models.TimeSlot{
+		Id:        3,
+		Date:      "2020-02-25",
+		StartTime: 11,
+		EndTime:   16,
+	}
+
+	_, err := commands.CreateInterviewerTimeSlot("2", &expectedAvailability)
+
+	if err != nil {
+		log.Println(err)
+	}
+
+	req, err := http.NewRequest(
+		"GET",
+		"/candidates/1/availability?interviewer=1&interviewer=2",
+		nil,
+	)
+
+	if err != nil {
+		t.Errorf(
+			"Test failed.\nGot:\n\t%v",
+			err.Error(),
+		)
+	}
+
+	resp := httptest.NewRecorder()
+	MockRouter().ServeHTTP(resp, req)
+
+	expectedBody := fmt.Sprintf(
+		`[{"interviewer_id":1,"time_slots":[]},{"interviewer_id":2,"time_slots":[{"id":%v,"date":"%v","start_time":%v,"end_time":%v}]}]
+`,
+		expectedAvailability.Id,
+		expectedAvailability.Date,
+		expectedAvailability.StartTime,
+		12,
+	)
+
+	assert.Equal(t, 200, resp.Code, "200 response expected")
+
+	assert.Equal(
+		t,
+		"application/json; charset=UTF-8",
+		resp.Header().Get("Content-Type"),
+		"JSON response expected",
+	)
+
+	assert.Equal(
+		t,
+		expectedBody,
+		resp.Body.String(),
+		"List of time slots expected",
+	)
+
+	dbHelpers.Clean(conf)
+	dbHelpers.Seed(conf)
+}
+
+func TestCandidateAvailabilityIndexHandlerWithInterviewersAndAllIsTrue(t *testing.T) {
+	conf := config.LoadConfig()
+	dbHelpers.Clean(conf)
+	dbHelpers.Seed(conf)
+	os.Setenv("TIME_NOW", fmt.Sprintf("'%v'::timestamp", currentTime))
+
+	expectedAvailability := models.TimeSlot{
+		Id:        3,
+		Date:      "2020-02-25",
+		StartTime: 11,
+		EndTime:   16,
+	}
+
+	_, err := commands.CreateInterviewerTimeSlot("2", &expectedAvailability)
+
+	if err != nil {
+		log.Println(err)
+	}
+
+	req, err := http.NewRequest(
+		"GET",
+		"/candidates/1/availability?interviewer=1&interviewer=2&all=true",
+		nil,
+	)
+
+	if err != nil {
+		t.Errorf(
+			"Test failed.\nGot:\n\t%v",
+			err.Error(),
+		)
+	}
+
+	resp := httptest.NewRecorder()
+	MockRouter().ServeHTTP(resp, req)
+
+	expectedBody := fmt.Sprintf(
+		`[{"interviewer_id":1,"time_slots":[]},{"interviewer_id":2,"time_slots":[{"id":%v,"date":"%v","start_time":%v,"end_time":%v}]}]
+`,
+		expectedAvailability.Id,
+		expectedAvailability.Date,
+		expectedAvailability.StartTime,
+		12,
+	)
+
+	assert.Equal(t, 200, resp.Code, "200 response expected")
+
+	assert.Equal(
+		t,
+		"application/json; charset=UTF-8",
+		resp.Header().Get("Content-Type"),
+		"JSON response expected",
+	)
+
+	assert.Equal(
+		t,
+		expectedBody,
+		resp.Body.String(),
+		"List of time slots expected",
+	)
+
+	dbHelpers.Clean(conf)
+	dbHelpers.Seed(conf)
+}
+
+func TestCandidateAvailabilityIndexHandlerWithInterviewersAndAllIsFalse(t *testing.T) {
+	conf := config.LoadConfig()
+	dbHelpers.Clean(conf)
+	dbHelpers.Seed(conf)
+	os.Setenv("TIME_NOW", fmt.Sprintf("'%v'::timestamp", currentTime))
+
+	expectedAvailability := models.TimeSlot{
+		Id:        3,
+		Date:      "2020-02-25",
+		StartTime: 11,
+		EndTime:   16,
+	}
+
+	_, err := commands.CreateInterviewerTimeSlot("2", &expectedAvailability)
+
+	if err != nil {
+		log.Println(err)
+	}
+
+	req, err := http.NewRequest(
+		"GET",
+		"/candidates/1/availability?interviewer=1&interviewer=2&all=false",
+		nil,
+	)
+
+	if err != nil {
+		t.Errorf(
+			"Test failed.\nGot:\n\t%v",
+			err.Error(),
+		)
+	}
+
+	resp := httptest.NewRecorder()
+	MockRouter().ServeHTTP(resp, req)
+
+	expectedBody := `[{"interviewer_id":1,"time_slots":[]},{"interviewer_id":2,"time_slots":[]}]
+`
+
+	assert.Equal(t, 200, resp.Code, "200 response expected")
+
+	assert.Equal(
+		t,
+		"application/json; charset=UTF-8",
+		resp.Header().Get("Content-Type"),
+		"JSON response expected",
+	)
+
+	assert.Equal(
+		t,
+		expectedBody,
+		resp.Body.String(),
+		"List of time slots expected",
+	)
+
+	dbHelpers.Clean(conf)
+	dbHelpers.Seed(conf)
+}
+
+func TestCandidateAvailabilityIndexHandlerWithOnlyOneInterviewer(t *testing.T) {
+	conf := config.LoadConfig()
+	dbHelpers.Clean(conf)
+	dbHelpers.Seed(conf)
+	os.Setenv("TIME_NOW", fmt.Sprintf("'%v'::timestamp", currentTime))
+
+	expectedAvailability := models.TimeSlot{
+		Id:        3,
+		Date:      "2020-02-25",
+		StartTime: 11,
+		EndTime:   16,
+	}
+
+	_, err := commands.CreateInterviewerTimeSlot("2", &expectedAvailability)
+
+	if err != nil {
+		log.Println(err)
+	}
+
+	req, err := http.NewRequest(
+		"GET",
+		"/candidates/1/availability?interviewer=1",
+		nil,
+	)
+
+	if err != nil {
+		t.Errorf(
+			"Test failed.\nGot:\n\t%v",
+			err.Error(),
+		)
+	}
+
+	resp := httptest.NewRecorder()
+	MockRouter().ServeHTTP(resp, req)
+
+	expectedBody := `[{"interviewer_id":1,"time_slots":[]}]
+`
+
+	assert.Equal(t, 200, resp.Code, "200 response expected")
+
+	assert.Equal(
+		t,
+		"application/json; charset=UTF-8",
+		resp.Header().Get("Content-Type"),
+		"JSON response expected",
+	)
+
+	assert.Equal(
+		t,
+		expectedBody,
+		resp.Body.String(),
+		"List of time slots expected",
+	)
+
+	dbHelpers.Clean(conf)
+	dbHelpers.Seed(conf)
 }
 
 func TestShowCandidateAvailabilityHandler(t *testing.T) {
@@ -785,6 +1108,7 @@ func TestDeleteCandidatesAvailabilityHandlerWhenCandidateDoesNotExist(t *testing
 	dbHelpers.Clean(conf)
 	dbHelpers.Seed(conf)
 }
+
 func TestDeleteCandidatesAvailabilityHandlerWhenTimeSlotDoesNotExist(t *testing.T) {
 	conf := config.LoadConfig()
 	req, err := http.NewRequest("DELETE", "/candidates/1/availability/1000", nil)

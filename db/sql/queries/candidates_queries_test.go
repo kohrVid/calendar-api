@@ -1,13 +1,22 @@
 package queries
 
 import (
+	"fmt"
 	"log"
+	"os"
 	"testing"
 
 	"github.com/kohrVid/calendar-api/app/models"
+	"github.com/kohrVid/calendar-api/app/serialisers"
 	"github.com/kohrVid/calendar-api/config"
 	"github.com/kohrVid/calendar-api/db/operations/dbHelpers"
+	"github.com/kohrVid/calendar-api/db/sql/commands"
 	"github.com/stretchr/testify/assert"
+)
+
+var (
+	pastTime    = "2020-02-24T07:00:48Z"
+	currentTime = "2020-03-05T07:00:48Z"
 )
 
 func init() {
@@ -94,6 +103,8 @@ func TestFindCandidateThatDoesNotExist(t *testing.T) {
 
 func TestListCandidateTimeSlots(t *testing.T) {
 	conf := config.LoadConfig()
+	os.Setenv("TIME_NOW", fmt.Sprintf("'%v'::timestamp", pastTime))
+
 	ts := config.ToMapList(
 		conf["data"].(map[string]interface{})["time_slots"],
 	)[0]
@@ -113,10 +124,43 @@ func TestListCandidateTimeSlots(t *testing.T) {
 }
 
 func TestListCandidateTimeSlotsWhenEmpty(t *testing.T) {
+	os.Setenv("TIME_NOW", fmt.Sprintf("'%v'::timestamp", pastTime))
+
 	res := ListCandidateTimeSlots("2")
 	expected := []models.TimeSlot{}
 
 	assert.Equal(t, expected, res, "Empty list expected")
+}
+
+func TestListCandidateTimeSlotsAllIsTrue(t *testing.T) {
+	conf := config.LoadConfig()
+	os.Setenv("TIME_NOW", fmt.Sprintf("'%v'::timestamp", currentTime))
+
+	ts := config.ToMapList(
+		conf["data"].(map[string]interface{})["time_slots"],
+	)[0]
+
+	res := ListCandidateTimeSlots("1", true)
+
+	timeSlot := models.TimeSlot{
+		Id:        1,
+		Date:      ts["date"].(string),
+		StartTime: ts["start_time"].(int),
+		EndTime:   ts["end_time"].(int),
+	}
+
+	expected := []models.TimeSlot{timeSlot}
+
+	assert.Equal(t, expected, res, "List of candidates expected")
+}
+
+func TestListCandidateTimeSlotsAllIsFalse(t *testing.T) {
+	os.Setenv("TIME_NOW", fmt.Sprintf("'%v'::timestamp", currentTime))
+
+	res := ListCandidateTimeSlots("1", false)
+	expected := []models.TimeSlot{}
+
+	assert.Equal(t, expected, res, "List of candidates expected")
 }
 
 func TestFindCandidateTimeSlot(t *testing.T) {
@@ -171,4 +215,184 @@ func TestFindCandidateTimeSlotIsForAnotherCandidate(t *testing.T) {
 
 	assert.Equal(t, 0, res.StartTime, "No time slot details expected")
 	assert.Equal(t, 0, res.EndTime, "No time slot details expected")
+}
+
+func TestListCandidateAndInterviewerTimeSlot(t *testing.T) {
+	conf := config.LoadConfig()
+	dbHelpers.Clean(conf)
+	dbHelpers.Seed(conf)
+	os.Setenv("TIME_NOW", fmt.Sprintf("'%v'::timestamp", pastTime))
+
+	expectedInterviewer := 2
+
+	expectedAvailability := models.TimeSlot{
+		Id:        3,
+		Date:      "2020-02-25",
+		StartTime: 11,
+		EndTime:   16,
+	}
+
+	_, err := commands.CreateInterviewerTimeSlot("2", &expectedAvailability)
+
+	if err != nil {
+		log.Println(err)
+	}
+
+	res := ListCandidateAndInterviewerTimeSlot("1", []string{"1", "2"})
+
+	expected := []serialisers.InterviewerAvailability{
+		serialisers.InterviewerAvailability{
+			InterviewerId: 1,
+			TimeSlots:     []models.TimeSlot{},
+		},
+		serialisers.InterviewerAvailability{
+			InterviewerId: expectedInterviewer,
+			TimeSlots: []models.TimeSlot{
+				models.TimeSlot{
+					Id:        expectedAvailability.Id,
+					Date:      expectedAvailability.Date,
+					StartTime: expectedAvailability.StartTime,
+					EndTime:   12,
+				},
+			},
+		},
+	}
+
+	assert.Equal(t, expected, res, "Interviewer availability collection expected")
+}
+
+func TestListCandidateAndInterviewerTimeSlotUnavailableCandidate(t *testing.T) {
+	conf := config.LoadConfig()
+	dbHelpers.Clean(conf)
+	dbHelpers.Seed(conf)
+	os.Setenv("TIME_NOW", fmt.Sprintf("'%v'::timestamp", currentTime))
+
+	expectedAvailability := models.TimeSlot{
+		Id:        3,
+		Date:      "2020-02-25",
+		StartTime: 11,
+		EndTime:   16,
+	}
+
+	_, err := commands.CreateInterviewerTimeSlot("2", &expectedAvailability)
+
+	if err != nil {
+		log.Println(err)
+	}
+
+	res := ListCandidateAndInterviewerTimeSlot("2", []string{"1", "2"})
+
+	expected := []serialisers.InterviewerAvailability{
+		serialisers.InterviewerAvailability{
+			InterviewerId: 1,
+			TimeSlots:     []models.TimeSlot{},
+		},
+		serialisers.InterviewerAvailability{
+			InterviewerId: 2,
+			TimeSlots:     []models.TimeSlot{},
+		},
+	}
+
+	assert.Equal(t, expected, res, "Empty Interviewer availability collection expected")
+}
+
+func TestListCandidateAndInterviewerTimeSlotUnavailableInterviewers(t *testing.T) {
+	conf := config.LoadConfig()
+	dbHelpers.Clean(conf)
+	dbHelpers.Seed(conf)
+	os.Setenv("TIME_NOW", fmt.Sprintf("'%v'::timestamp", pastTime))
+
+	res := ListCandidateAndInterviewerTimeSlot("1", []string{"1", "2"})
+
+	expected := []serialisers.InterviewerAvailability{
+		serialisers.InterviewerAvailability{
+			InterviewerId: 1,
+			TimeSlots:     []models.TimeSlot{},
+		},
+		serialisers.InterviewerAvailability{
+			InterviewerId: 2,
+			TimeSlots:     []models.TimeSlot{},
+		},
+	}
+
+	assert.Equal(t, expected, res, "Empty Interviewer availability collection expected")
+}
+
+func TestListCandidateAndInterviewerTimeSlotNoFutureTimeSlots(t *testing.T) {
+	conf := config.LoadConfig()
+	dbHelpers.Clean(conf)
+	dbHelpers.Seed(conf)
+
+	os.Setenv("TIME_NOW", fmt.Sprintf("'%v'::timestamp", currentTime))
+
+	expectedAvailability := models.TimeSlot{
+		Id:        3,
+		Date:      "2020-02-25",
+		StartTime: 11,
+		EndTime:   16,
+	}
+
+	_, err := commands.CreateInterviewerTimeSlot("2", &expectedAvailability)
+
+	if err != nil {
+		log.Println(err)
+	}
+
+	res := ListCandidateAndInterviewerTimeSlot("1", []string{"1", "2"}, false)
+
+	expected := []serialisers.InterviewerAvailability{
+		serialisers.InterviewerAvailability{
+			InterviewerId: 1,
+			TimeSlots:     []models.TimeSlot{},
+		},
+		serialisers.InterviewerAvailability{
+			InterviewerId: 2,
+			TimeSlots:     []models.TimeSlot{},
+		},
+	}
+
+	assert.Equal(t, expected, res, "Empty Interviewer availability collection expected")
+}
+
+func TestListCandidateAndInterviewerTimeSlotAll(t *testing.T) {
+	conf := config.LoadConfig()
+	dbHelpers.Clean(conf)
+	dbHelpers.Seed(conf)
+	expectedInterviewer := 2
+	os.Setenv("TIME_NOW", fmt.Sprintf("'%v'::timestamp", pastTime))
+
+	expectedAvailability := models.TimeSlot{
+		Id:        3,
+		Date:      "2020-02-25",
+		StartTime: 11,
+		EndTime:   16,
+	}
+
+	_, err := commands.CreateInterviewerTimeSlot("2", &expectedAvailability)
+
+	if err != nil {
+		log.Println(err)
+	}
+
+	res := ListCandidateAndInterviewerTimeSlot("1", []string{"1", "2"}, true)
+
+	expected := []serialisers.InterviewerAvailability{
+		serialisers.InterviewerAvailability{
+			InterviewerId: 1,
+			TimeSlots:     []models.TimeSlot{},
+		},
+		serialisers.InterviewerAvailability{
+			InterviewerId: expectedInterviewer,
+			TimeSlots: []models.TimeSlot{
+				models.TimeSlot{
+					Id:        expectedAvailability.Id,
+					Date:      expectedAvailability.Date,
+					StartTime: expectedAvailability.StartTime,
+					EndTime:   12,
+				},
+			},
+		},
+	}
+
+	assert.Equal(t, expected, res, "Interviewer availability collection expected")
 }
